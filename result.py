@@ -11,11 +11,11 @@ def main():
     
     # loading history
     s_train_loss, s_train_acc, s_val_loss, s_val_acc = load_hist(student_path, 5)
-    t_train_loss, t_train_acc, t_val_loss, t_val_acc = load_hist(teacher_path, 1)
+    t_train_loss, t_train_acc, t_val_loss, t_val_acc = load_hist(teacher_path, 5)
     st_train_loss, st_train_acc, st_val_loss, st_val_acc = load_hist(student_st_path, 1)
     cam_train_loss, cam_train_acc, cam_val_loss, cam_val_acc = load_hist(student_cam_path, 1)
 
-    # plot
+    # plot result
     x = np.arange(100)
     fig = plt.figure()
     fig.patch.set_facecolor('white')

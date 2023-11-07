@@ -15,7 +15,7 @@ import pickle
 
 def main():
     for i in range(5):
-        print(i)
+        print(i+1)
         epochs = 100
         batch_size = 128
         torch.manual_seed(i)

@@ -15,8 +15,8 @@ import random
 import pickle
 
 def main():
-    for i in range(1):
-        print(i)
+    for i in range(5):
+        print(i+1)
         torch.manual_seed(i)
         np.random.seed(i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
