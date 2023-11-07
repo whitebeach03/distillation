@@ -39,9 +39,7 @@ def main():
         student = StudentModel().to(device)
         
         teacher.load_state_dict(torch.load('./logs/teacher/' + str(i) + '.pth'))
-        
         loss_fn = nn.CrossEntropyLoss()
-        
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         
         # teacher test

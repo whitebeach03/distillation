@@ -6,7 +6,6 @@ from torchvision import datasets
 from torch.utils.data import random_split,DataLoader
 from src.model import TeacherModel, StudentModel
 import torch.optim as optimizers
-# from src.kd_loss.fitnet import HintLearningLoss
 from src.kd_loss.st import SoftTargetLoss
 from src.utils import EarlyStopping
 from tqdm import tqdm
@@ -14,15 +13,6 @@ from sklearn.metrics import accuracy_score
 import os
 import random
 import pickle
-
-def seed_everything(seed=1234):
-    random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
-        torch.backends.cudnn.deterministic = True
 
 def main():
     for i in range(1):
@@ -51,69 +41,79 @@ def main():
         loss_fn = nn.CrossEntropyLoss()
         epochs = 100
         score = 0.
-        teacher_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
-        #es = EarlyStopping(patience=10, verbose=1)
-        # teacher最適化
+        history = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
+
         for epoch in range(epochs):
             train_loss = 0.
             train_acc = 0.
             val_loss = 0.
             val_acc = 0.
+            
+            # train
             teacher.train()
             for (images,labels) in tqdm(train_dataloader, leave=False):
                 images, labels= images.to(device),labels.to(device)
+                
                 preds = teacher(images)
                 loss = loss_fn(preds, labels)
+                
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
+                
                 train_loss += loss.item()
                 train_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
+                
             train_loss /= len(train_dataloader)
             train_acc /= len(train_dataloader)
 
-            # teacher validation
+            # validation
             teacher.eval()
             with torch.no_grad():
                 for (images,labels) in val_dataloader:
                     images, labels = images.to(device), labels.to(device)
+                    
                     preds = teacher(images)
                     loss = loss_fn(preds, labels)
+                    
                     val_loss += loss.item()
                     val_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
+                    
                 val_loss /= len(val_dataloader)
                 val_acc /= len(val_dataloader)
              
             if score <= val_acc:
-                print('test')
+                print('save param')
                 score = val_acc
                 torch.save(teacher.state_dict(), './logs/teacher/' + str(i) + '.pth') 
 
-            teacher_hist['loss'].append(train_loss)
-            teacher_hist['accuracy'].append(train_acc)
-            teacher_hist['val_loss'].append(val_loss)
-            teacher_hist['val_accuracy'].append(val_acc)
+            history['loss'].append(train_loss)
+            history['accuracy'].append(train_acc)
+            history['val_loss'].append(val_loss)
+            history['val_accuracy'].append(val_acc)
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
-            #if es(val_loss):
-            #    break
             
         with open('./history/teacher/'+str(i)+'.pickle', mode='wb') as f:
-            pickle.dump(teacher_hist, f)
+            pickle.dump(history, f)
             
         # teacher test
         teacher.load_state_dict(torch.load('./logs/teacher/' + str(i) + '.pth'))
         test = {'acc': [], 'loss': []}
         teacher.eval()
+        
         test_loss = 0.
         test_acc = 0.
         with torch.no_grad():
             for (images,labels) in test_dataloader:
                 images, labels = images.to(device),labels.to(device)
+                
                 preds = teacher(images)
                 loss = loss_fn(preds, labels)
+                
                 test_loss += loss.item()
                 test_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
+                
         test_loss /= len(test_dataloader)
         test_acc /= len(test_dataloader)
         print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')

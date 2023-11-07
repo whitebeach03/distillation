@@ -2,16 +2,9 @@ import torch
 import torch.nn as nn
 
 loss = nn.MSELoss()
-result = 0
-a = torch.randn(3, 3, 3)
-b = torch.randn(3, 3, 3)
 
-# 1
-for i in range(3):
-    res = loss(a[i], b[i])
-    result += res
-print(result)
+a = torch.tensor([[1.0, 2.0, 3.0], [1.0, 2.0, 3.0], [1.0, 2.0, 3.0]])
+b = torch.tensor([[1.0, 1.0, 1.0], [1.0, 1.0, 1.0], [1.0, 1.0, 1.0]])
 
-
-closs = loss(a, b)
-print(closs)
+c = loss(a, b)
+print(c)

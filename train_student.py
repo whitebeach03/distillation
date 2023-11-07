@@ -39,7 +39,7 @@ def main():
         optim = optimizers.Adam(student.parameters())
         loss_fn = nn.CrossEntropyLoss()
         score = 0.
-        base_hist = {'loss': [], 'accuracy': [], 'val_loss':[], 'val_accuracy': []}
+        history = {'loss': [], 'accuracy': [], 'val_loss':[], 'val_accuracy': []}
         
         for epoch in range(epochs):
             train_acc = 0.
@@ -82,33 +82,37 @@ def main():
             
             # save params
             if score <= val_acc:
-                print('param update')
+                print('save param')
                 score = val_acc
                 torch.save(student.state_dict(), './logs/student/' + str(i) + '.pth') 
 
-            base_hist['loss'].append(train_loss)
-            base_hist['accuracy'].append(train_acc)
-            base_hist['val_loss'].append(val_loss)
-            base_hist['val_accuracy'].append(val_acc)
+            history['loss'].append(train_loss)
+            history['accuracy'].append(train_acc)
+            history['val_loss'].append(val_loss)
+            history['val_accuracy'].append(val_acc)
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
         
         with open('./history/student/' + str(i) + '.pickle', mode='wb') as f:
-            pickle.dump(base_hist, f)
+            pickle.dump(history, f)
 
-        # test
+        # student test
         student.load_state_dict(torch.load('./logs/student/' + str(i) + '.pth'))
         student.eval()
+        
         test = {'acc': [], 'loss': []}
         test_loss = 0.
         test_acc = 0.
         with torch.no_grad():
             for (images,labels) in test_dataloader:
                 images, labels = images.to(device), labels.to(device)
+                
                 preds = student(images)
                 loss = loss_fn(preds, labels)
+                
                 test_loss += loss.item()
                 test_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
+                
         test_loss /= len(test_dataloader)
         test_acc /= len(test_dataloader)
         print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')

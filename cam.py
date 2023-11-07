@@ -49,7 +49,7 @@ def main():
         fig, ax = plt.subplots(1,3)
         ax[0].set_title('student')
         ax[1].set_title('teacher')
-        ax[2].set_title('student(cam)')
+        ax[2].set_title('student(CAM)')
         ax[0].imshow(student_cam)
         ax[1].imshow(teacher_cam)
         ax[2].imshow(cam_student_cam)

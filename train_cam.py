@@ -69,8 +69,8 @@ def main():
         T = 10 # 温度パラメータ
         score = 0.
         soft_loss = SoftTargetLoss() # ソフトターゲット
-        cam_loss = nn.MSELoss() # CAMターゲット
-        # cam_loss = CAMLoss()
+        # cam_loss = nn.MSELoss() # CAMターゲット
+        cam_loss = CAMLoss()
         for epoch in range(epochs):
             train_loss = 0.
             train_acc = 0.
@@ -83,9 +83,9 @@ def main():
                 targets = teacher(images)
                 
                 student_cam = cam(student, images, labels, batch_size, device)
-                teacher_cam = cam(teacher, images, labels, batch_size, device) # torch.Size([batch_size=100, 28, 28])
+                teacher_cam = cam(teacher, images, labels, batch_size, device) # torch.Size([batch_size=128, 32, 32])
                 
-                loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam)
+                loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam, batch_size)
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
@@ -138,12 +138,10 @@ def main():
         test_loss /= len(test_dataloader)
         test_acc /= len(test_dataloader)
         print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
-        # test_loss: 0.825, test_accuracy: 0.811
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
         with open('./history/student_cam/test' + str(i) + '.pickle', mode='wb') as f:
             pickle.dump(test, f)
-                
 
 def cam(model, images, labels, batch_size, device):
     model.eval()
