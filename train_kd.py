@@ -14,8 +14,8 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(1):
-        print(i)
+    for i in range(5):
+        print(i+1)
         epochs = 100
         batch_size = 128
         np.random.seed(i)

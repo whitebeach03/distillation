@@ -55,10 +55,12 @@ def main():
         ax[1].set_title('teacher')
         ax[2].set_title('student(distilled)')
         ax[3].set_title('student(CAM)')
+        
         ax[0].imshow(student_cam)
         ax[1].imshow(teacher_cam)
         ax[2].imshow(st_student_cam)
         ax[3].imshow(cam_student_cam)
+        
         plt.suptitle(name[label], fontsize=20)
         plt.savefig('./cam/cam_' + str(i) + '.png')
 
