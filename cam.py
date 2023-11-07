@@ -19,14 +19,17 @@ def main():
     # setting models
     student = StudentModel().to(device)
     teacher = TeacherModel().to(device)
+    st_student = StudentModel().to(device)
     cam_student = StudentModel().to(device)
     
     student.load_state_dict(torch.load('./logs/student/0.pth'))
     teacher.load_state_dict(torch.load('./logs/teacher/0.pth'))
+    st_student.load_state_dict(torch.load('./logs/student_st/0.pth'))
     cam_student.load_state_dict(torch.load('./logs/student_cam/0.pth'))
     
     student.eval()
     teacher.eval()
+    st_student.eval()
     cam_student.eval()
 
     # setting dataset
@@ -43,16 +46,19 @@ def main():
         # create CAM
         student_cam = create_cam(student, input_image, image, label)
         teacher_cam = create_cam(teacher, input_image, image, label)
+        st_student_cam = create_cam(st_student, input_image, image, label)
         cam_student_cam = create_cam(cam_student, input_image, image, label)
 
         # visualize and save CAM
-        fig, ax = plt.subplots(1,3)
+        fig, ax = plt.subplots(2,2)
         ax[0].set_title('student')
         ax[1].set_title('teacher')
-        ax[2].set_title('student(CAM)')
+        ax[2].set_title('student(distilled)')
+        ax[3].set_title('student(CAM)')
         ax[0].imshow(student_cam)
         ax[1].imshow(teacher_cam)
-        ax[2].imshow(cam_student_cam)
+        ax[2].imshow(st_student_cam)
+        ax[3].imshow(cam_student_cam)
         plt.suptitle(name[label], fontsize=20)
         plt.savefig('./cam/cam_' + str(i) + '.png')
 
