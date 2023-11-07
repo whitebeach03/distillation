@@ -33,7 +33,7 @@ def main():
     plt.ylim(0.60, 0.865)
 
     plt.legend()
-    plt.savefig('./reslut/result.png')
+    plt.savefig('./result/result.png')
 
 def load_hist(path, iteration):
     dic = {}
