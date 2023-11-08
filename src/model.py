@@ -4,7 +4,7 @@ import torch.nn as nn
 class TeacherConvBnAct(nn.Module):
     def __init__(self, input_dim, output_dim):
         super().__init__()
-        self.conv = nn.Conv2d(input_dim, output_dim, 3, padding=1)
+        self.conv = nn.Conv2d(input_dim, output_dim, 3)
         self.dropout = nn.Dropout(p=0.2)
         self.bn = nn.BatchNorm2d(output_dim)
         self.relu = nn.ReLU(inplace=True)
@@ -68,7 +68,7 @@ class StudentModel(BaseModel):
         self.layer2 = self._make_student_layer(4, 16, 32)
         self.layer3 = self._make_student_layer(4, 32, 64)
         self.layer4 = self._make_student_layer(4, 64, 128)
-        self.mlp = MLP(128, 128, 10)
+        self.mlp = MLP(512, 128, 2)
         # self.maxpool = nn.MaxPool2d(3, stride=2)
         self.maxpool = nn.MaxPool2d(3, stride=3)
     
@@ -121,6 +121,30 @@ class TeacherModel(BaseModel):
         self.layer4 = self._make_teacher_layer(2, 256, 512)
         self.mlp = MLP(512, 128, 10)
         self.maxpool = nn.MaxPool2d(3, stride=2)
+    
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.maxpool(x)
+        x = self.layer2(x)
+        x = self.maxpool(x)
+        x = self.layer3(x)
+        x = self.maxpool(x)
+        x = self.layer4(x)
+        x = self.maxpool(x)
+        # print(x.shape)
+        x = x.view(x.shape[0], -1)
+        x = self.mlp(x)
+        return x
+
+class Model(BaseModel):
+    def __init__(self, input_dim=3):
+        super().__init__()
+        self.layer1 = self._make_student_layer(1, input_dim, 8)
+        self.layer2 = self._make_student_layer(1, 8, 16)
+        self.layer3 = self._make_student_layer(1, 16, 32)
+        self.layer4 = self._make_student_layer(1, 32, 64)
+        self.mlp = MLP(256, 128, 4)
+        self.maxpool = nn.MaxPool2d(3, stride=3)
     
     def forward(self, x):
         x = self.layer1(x)

@@ -23,4 +23,12 @@ def cam_loss(a, b):
     return loss_norm
 
 
-
+# 
+for i in range(1, 6013):
+    img1 = cv2.imread('./data/COVID-19/Lung_Opacity/images/Lung_Opacity-' + str(i) + '.png', cv2.IMREAD_COLOR)
+    img1 = cv2.resize(img1, dsize=(256, 256))
+    img2 = cv2.imread('./data/COVID-19/Lung_Opacity/masks/Lung_Opacity-' + str(i) + '.png', cv2.IMREAD_COLOR)
+    
+    img3 = img1 * img2
+    
+    cv2.imwrite('./covid19/train/opacity/' + str(i) + '.png', img3)
