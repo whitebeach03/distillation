@@ -14,6 +14,14 @@ def main():
     t_train_loss, t_train_acc, t_val_loss, t_val_acc = load_hist(teacher_path, 5)
     st_train_loss, st_train_acc, st_val_loss, st_val_acc = load_hist(student_st_path, 5)
     cam_train_loss, cam_train_acc, cam_val_loss, cam_val_acc = load_hist(student_cam_path, 1)
+    
+    # print best test accuracy
+    student_best = load_test(student_path, 5)
+    teacher_best = load_test(teacher_path, 5)
+    student_st_best = load_test(student_st_path, 5)
+    print('student: ' + str(student_best))
+    print('teacher: ' + str(teacher_best))
+    print('distilled-student: ' + str(student_st_best))
 
     # plot result
     x = np.arange(100)
@@ -58,6 +66,20 @@ def load_hist(path, iteration):
     val_acc = val_acc / iteration
     
     return train_loss, train_acc, val_loss, val_acc
+
+def load_test(path, iteration):
+    dic = {}
+    for i in range(iteration):
+        with open(path + 'test' + str(i) + '.pickle', mode='rb') as f:
+            dic[i] = pickle.load(f)
+    
+    best_acc = 0
+    for i in range(iteration):
+        if dic[i]['acc'][0] >= best_acc:
+            best_acc = dic[i]['acc'][0]
+    best_acc *= 100
+    best_acc = round(best_acc, 2)
+    return best_acc
 
 if __name__ == '__main__':
     main()
