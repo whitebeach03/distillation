@@ -69,7 +69,8 @@ class StudentModel(BaseModel):
         self.layer3 = self._make_student_layer(4, 32, 64)
         self.layer4 = self._make_student_layer(4, 64, 128)
         self.mlp = MLP(128, 128, 10)
-        self.maxpool = nn.MaxPool2d(3, stride=2)
+        # self.maxpool = nn.MaxPool2d(3, stride=2)
+        self.maxpool = nn.MaxPool2d(3, stride=3)
     
     def forward(self, x):
         # import ipdb; ipdb.set_trace()
@@ -81,6 +82,7 @@ class StudentModel(BaseModel):
         x = self.maxpool(x)
         x = self.layer4(x)
         x = self.maxpool(x)
+        # print(x.shape)
         x = x.view(x.shape[0], -1)
         x = self.mlp(x)
         return x
@@ -129,6 +131,7 @@ class TeacherModel(BaseModel):
         x = self.maxpool(x)
         x = self.layer4(x)
         x = self.maxpool(x)
+        # print(x.shape)
         x = x.view(x.shape[0], -1)
         x = self.mlp(x)
         return x

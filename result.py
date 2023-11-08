@@ -7,7 +7,7 @@ def main():
     student_path = './history/student/'
     teacher_path = './history/teacher/'
     student_st_path = './history/student_st/'
-    student_cam_path = './history/student_cam/'
+    student_cam_path = './history/student_cam/sample'
     
     # loading history
     s_train_loss, s_train_acc, s_val_loss, s_val_acc = load_hist(student_path, 5)

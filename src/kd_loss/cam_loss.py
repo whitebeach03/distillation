@@ -24,17 +24,5 @@ class CAMLoss(nn.Module):
     
     def forward(self, student_cam, teacher_cam, batch_size):
         loss_fn = nn.MSELoss()
-        cam_loss = 0.
-        
-        for i in range(batch_size):
-            s = torch.norm(student_cam[i], p='fro')
-            t = torch.norm(teacher_cam[i], p='fro')
-            
-            s_cam = student_cam[i] / s
-            t_cam = teacher_cam[i] / t
-            
-            loss = loss_fn(s_cam, t_cam)
-            cam_loss += loss
-        
-        cam_loss /= batch_size
+        cam_loss = loss_fn(student_cam, teacher_cam)
         return cam_loss

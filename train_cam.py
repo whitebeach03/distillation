@@ -77,15 +77,18 @@ def main():
             val_loss = 0.
             val_acc = 0.
             student.train()
-            for (images, labels) in tqdm(train_dataloader, leave=False):
+            for cnt, (images, labels) in enumerate(tqdm(train_dataloader, leave=False)):
                 images, labels = images.to(device), labels.to(device)
                 preds = student(images)
                 targets = teacher(images)
                 
-                student_cam = cam(student, images, labels, batch_size, device)
-                teacher_cam = cam(teacher, images, labels, batch_size, device) # torch.Size([batch_size=128, 32, 32])
-                
-                loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam, batch_size)
+                if cnt % 10 == 0:
+                    student_cam = cam(student, images, labels, batch_size, device)
+                    teacher_cam = cam(teacher, images, labels, batch_size, device) # torch.Size([batch_size=128, 32, 32])
+                    loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam, batch_size)
+                else:
+                    loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets)
+                    
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
@@ -119,7 +122,7 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
             
-            with open('./history/student_cam/' + str(i) + '.pickle', mode='wb') as f:
+            with open('./history/student_cam/sample' + str(i) + '.pickle', mode='wb') as f:
                 pickle.dump(student_hist, f)
         
         student.load_state_dict(torch.load('./logs/student_cam/' + str(i) + '.pth'))

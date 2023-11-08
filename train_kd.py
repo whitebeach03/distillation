@@ -73,7 +73,7 @@ def main():
                 images, labels = images.to(device), labels.to(device)
                 preds = student(images)
                 targets = teacher(images)
-                loss = loss_fn(preds, labels) +  T * T * soft_loss(preds,targets)
+                loss = loss_fn(preds, labels) + T*T*soft_loss(preds,targets)
                 optim.zero_grad()
                 loss.backward()
                 optim.step()

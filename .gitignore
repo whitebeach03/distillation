@@ -163,5 +163,9 @@ data/**
 !data/.gitkeep
 logs/**
 !logs/.gitkeep
+covid19/**
+!covid19/.gitkeep
+covid3600/**
+!covid3600/.gitkeep
 
 .DS_Store
