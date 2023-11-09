@@ -35,7 +35,7 @@ def main():
     plt.plot(x, st_val_acc, label='Distillation', linewidth=0.5, color='orange')
     plt.plot(x, cam_val_acc, label='CAM-Distillation', linewidth=0.5, color='green')
 
-    plt.xticks(np.arange(0, 110, 10))
+    plt.xticks(np.arange(0, 110, 5))
     plt.yticks(np.arange(0.60, 0.90, 0.05))
     plt.xlim(0, 103)
     plt.ylim(0.60, 0.865)

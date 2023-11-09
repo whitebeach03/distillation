@@ -159,6 +159,30 @@ class Model(BaseModel):
         x = x.view(x.shape[0], -1)
         x = self.mlp(x)
         return x
+
+class TModel(BaseModel):
+    def __init__(self, input_dim=3):
+        super().__init__()
+        self.layer1 = self._make_student_layer(2, input_dim, 16)
+        self.layer2 = self._make_student_layer(2, 16, 32)
+        self.layer3 = self._make_student_layer(2, 32, 64)
+        self.layer4 = self._make_student_layer(2, 64, 128)
+        self.mlp = MLP(512, 128, 4)
+        self.maxpool = nn.MaxPool2d(3, stride=3)
+    
+    def forward(self, x):
+        x = self.layer1(x)
+        x = self.maxpool(x)
+        x = self.layer2(x)
+        x = self.maxpool(x)
+        x = self.layer3(x)
+        x = self.maxpool(x)
+        x = self.layer4(x)
+        x = self.maxpool(x)
+        # print(x.shape)
+        x = x.view(x.shape[0], -1)
+        x = self.mlp(x)
+        return x
     
     
 class BasicBlock(nn.Module):

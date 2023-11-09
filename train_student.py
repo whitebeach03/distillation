@@ -16,7 +16,7 @@ import pickle
 def main():
     for i in range(1):
         print(i+1)
-        epochs = 20
+        epochs = 50
         batch_size = 32
         torch.manual_seed(i)
         np.random.seed(i)
@@ -100,8 +100,8 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
         
-        # with open('./history/student/' + str(i) + '.pickle', mode='wb') as f: #########
-        #     pickle.dump(history, f)
+        with open('./history/student/0' + str(i) + '.pickle', mode='wb') as f: #########
+            pickle.dump(history, f)
 
         # student test
         student.load_state_dict(torch.load('./logs/student/' + str(i) + '.pth'))

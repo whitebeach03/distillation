@@ -4,7 +4,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision import datasets
 from torch.utils.data import random_split,DataLoader
-from src.model import TeacherModel, StudentModel
+from src.model import TeacherModel, StudentModel, TModel
 import torch.optim as optimizers
 from src.kd_loss.st import SoftTargetLoss
 from src.utils import EarlyStopping
@@ -28,9 +28,9 @@ def main():
         # trainset = datasets.CIFAR10(root=data_dir, download=True, train=True, transform=transform)
         # testset = datasets.CIFAR10(root=data_dir, download=True, train=False, transform=transform)
         
-        train_data_dir = './covid3600/train'
-        test_data_dir = './covid3600/test'
-        transform = transforms.Compose([transforms.Resize(32), transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+        train_data_dir = './covid19/train'
+        test_data_dir = './covid19/test'
+        transform = transforms.Compose([transforms.Resize(224), transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         trainset = datasets.ImageFolder(root=train_data_dir, transform=transform)
         testset = datasets.ImageFolder(root=test_data_dir, transform=transform)
         
@@ -43,7 +43,8 @@ def main():
         val_dataloader = DataLoader(valset, batch_size=batch_size, shuffle=False)
         test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
         
-        teacher = TeacherModel().to(device)
+        # teacher = TeacherModel().to(device)
+        teacher = TModel().to(device)
         optim = optimizers.Adam(teacher.parameters())
         loss_fn = nn.CrossEntropyLoss()
         score = 0.
