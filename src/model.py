@@ -163,11 +163,11 @@ class Model(BaseModel):
 class TModel(BaseModel):
     def __init__(self, input_dim=3):
         super().__init__()
-        self.layer1 = self._make_student_layer(2, input_dim, 16)
-        self.layer2 = self._make_student_layer(2, 16, 32)
-        self.layer3 = self._make_student_layer(2, 32, 64)
-        self.layer4 = self._make_student_layer(2, 64, 128)
-        self.mlp = MLP(512, 128, 4)
+        self.layer1 = self._make_student_layer(3, input_dim, 32)
+        self.layer2 = self._make_student_layer(3, 32, 64)
+        self.layer3 = self._make_student_layer(3, 64, 128)
+        self.layer4 = self._make_student_layer(3, 128, 256)
+        self.mlp = MLP(1024, 128, 4)
         self.maxpool = nn.MaxPool2d(3, stride=3)
     
     def forward(self, x):
