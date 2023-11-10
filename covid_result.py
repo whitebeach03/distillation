@@ -11,19 +11,19 @@ def main():
     # loading history
     student_acc = load_hist(student_path, 5)
     teacher_acc = load_hist(teacher_path, 5)
-    st_acc = load_hist(st_path, 1)
+    st_acc = load_hist(st_path, 5)
     
     # print test accuracy
     student_avg_acc = load_avg_test('history/student/test0', 5)
     student_best_acc = load_best_test('history/student/test0', 5)
     teacher_avg_acc = load_avg_test('history/teacher/test0', 5)
     teacher_best_acc = load_best_test('history/teacher/test0', 5)
-    # st_avg_acc = load_avg_test('history/student_st/test0', 5)
-    # st_best_acc = load_best_test('history/student_st/test0', 5)
+    st_avg_acc = load_avg_test('history/student_st/test0', 5)
+    st_best_acc = load_best_test('history/student_st/test0', 5)
     
     print('Student avg_acc: ' + str(student_avg_acc) + ' best_acc: ' + str(student_best_acc))
     print('Teacher avg_acc: ' + str(teacher_avg_acc) + ' best_acc: ' + str(teacher_best_acc))
-    # print('Distillation avg_acc: ' + str(st_avg_acc) + ' best_acc: ' + str(st_best_acc))
+    print('Distillation avg_acc: ' + str(st_avg_acc) + ' best_acc: ' + str(st_best_acc))
     
     # plot result
     x = np.arange(50)
