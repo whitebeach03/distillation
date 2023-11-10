@@ -166,7 +166,7 @@ def cam(model, images, labels, batch_size, device):
         label = labels[i]
         grayscale_cam = cam(input_tensor=image.unsqueeze(0), targets=[ClassifierOutputTarget(label)])
         grayscale_cam = grayscale_cam[0, :]
-        cams = np.append(cams, grayscale_cam).reshape(i+1, 32, 32)  ### ここ修正する
+        cams = np.append(cams, grayscale_cam).reshape(i+1, 32, 32)  ### 確認
     
     cams = torch.tensor(cams)
     return cams
