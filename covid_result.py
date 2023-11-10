@@ -9,15 +9,15 @@ def main():
     st_path = 'history/student_st/0'
 
     # loading history
-    student_acc = load_hist(student_path, 5)
-    teacher_acc = load_hist(teacher_path, 5)
+    student_acc = load_hist(student_path, 10)
+    teacher_acc = load_hist(teacher_path, 10)
     st_acc = load_hist(st_path, 5)
     
     # print test accuracy
-    student_avg_acc = load_avg_test('history/student/test0', 5)
-    student_best_acc = load_best_test('history/student/test0', 5)
-    teacher_avg_acc = load_avg_test('history/teacher/test0', 5)
-    teacher_best_acc = load_best_test('history/teacher/test0', 5)
+    student_avg_acc = load_avg_test('history/student/test0', 10)
+    student_best_acc = load_best_test('history/student/test0', 10)
+    teacher_avg_acc = load_avg_test('history/teacher/test0', 10)
+    teacher_best_acc = load_best_test('history/teacher/test0', 10)
     st_avg_acc = load_avg_test('history/student_st/test0', 5)
     st_best_acc = load_best_test('history/student_st/test0', 5)
     
