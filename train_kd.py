@@ -22,33 +22,32 @@ def main():
         torch.manual_seed(i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
-        # data_dir = './data/cifar10'
-        # transform = transforms.Compose([transforms.ToTensor() ,transforms.Normalize(mean = [0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
-        # trainset = datasets.CIFAR10(root=data_dir, download=True, train=True, transform=transform)
-        # testset = datasets.CIFAR10(root=data_dir, download=True, train=False, transform=transform)
+        data_dir = './data/cifar10'
+        transform = transforms.Compose([transforms.ToTensor() ,transforms.Normalize(mean = [0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
+        trainset = datasets.CIFAR10(root=data_dir, download=True, train=True, transform=transform)
+        testset = datasets.CIFAR10(root=data_dir, download=True, train=False, transform=transform)
+        n_samples = len(trainset)
+        n_train = int(n_samples * 0.8)
+        n_val = n_samples - n_train
+        trainset, valset = random_split(trainset, [n_train, n_val])
         
-        data_dir = './data/covid19'
-        transform = transforms.Compose([transforms.Resize(224), transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
-        dataset = datasets.ImageFolder(root=data_dir, transform=transform)
+        # data_dir = './data/covid19'
+        # transform = transforms.Compose([transforms.Resize(224), transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
+        # dataset = datasets.ImageFolder(root=data_dir, transform=transform)
+        # n_samples = len(dataset)
+        # n_val = int(n_samples * 0.2)
+        # n_test = n_val
+        # n_train = n_samples - n_val - n_test
+        # trainset, valset, testset = random_split(dataset, [n_train, n_val, n_test])
         
-        n_samples = len(dataset)
-        n_val = int(n_samples * 0.2)
-        n_test = n_val
-        n_train = n_samples - n_val - n_test
-        trainset, valset, testset = random_split(dataset, [n_train, n_val, n_test])
-        
-        # n_samples = len(trainset)
-        # n_train = int(n_samples * 0.8)
-        # n_val = n_samples - n_train
-        # trainset, valset = random_split(trainset, [n_train, n_val])
         train_dataloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=8)
         val_dataloader = DataLoader(valset, batch_size=batch_size, shuffle=False)
         test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
         
-        teacher = TModel().to(device)
-        student = Model().to(device)
+        teacher = TeacherModel().to(device)
+        student = StudentModel().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/teacher/0' + str(i) + '.pth'))
+        teacher.load_state_dict(torch.load('./logs/teacher/' + str(i) + '.pth'))
         loss_fn = nn.CrossEntropyLoss()
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         
@@ -108,7 +107,7 @@ def main():
             if score <= val_acc:
                 print('test')
                 score = val_acc
-                torch.save(student.state_dict(), './logs/student_st/0' + str(i) + '.pth') 
+                torch.save(student.state_dict(), './logs/student_st/' + str(i) + '.pth') 
             
             student_hist['loss'].append(train_loss)
             student_hist['accuracy'].append(train_acc)
@@ -117,10 +116,10 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
             
-            with open('./history/student_st/0' + str(i) + '.pickle', mode='wb') as f:
+            with open('./history/student_st/' + str(i) + '.pickle', mode='wb') as f:
                 pickle.dump(student_hist, f)
 
-        student.load_state_dict(torch.load('./logs/student_st/0' + str(i) + '.pth'))
+        student.load_state_dict(torch.load('./logs/student_st/' + str(i) + '.pth'))
         test = {'acc': [], 'loss': []}
         # distillation student test
         student.eval()
@@ -139,7 +138,7 @@ def main():
         # test_loss: 0.825, test_accuracy: 0.811
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
-        with open('./history/student_st/test0'+str(i)+'.pickle', mode='wb') as f:
+        with open('./history/student_st/test'+str(i)+'.pickle', mode='wb') as f:
             pickle.dump(test, f)
 
 if __name__ == '__main__':

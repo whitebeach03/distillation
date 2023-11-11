@@ -50,9 +50,7 @@ def main():
         student = StudentModel().to(device)
         
         teacher.load_state_dict(torch.load('./logs/teacher/' + str(i) + '.pth'))
-        
-        loss_fn = nn.CrossEntropyLoss()
-        
+        loss_fn = nn.CrossEntropyLoss() 
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         
         # teacher test
@@ -91,8 +89,7 @@ def main():
         
                 student_cam = cam(student, images, labels, batch_size, device)
                 teacher_cam = cam(teacher, images, labels, batch_size, device)
-                # loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam)
-                loss = loss_fn(preds, labels) + cam_loss(student_cam, teacher_cam)
+                loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam)
                     
                 optim.zero_grad()
                 loss.backward()
@@ -162,7 +159,8 @@ def cam(model, images, labels, batch_size, device):
         label = labels[i]
         grayscale_cam = cam(input_tensor=image.unsqueeze(0), targets=[ClassifierOutputTarget(label)])
         grayscale_cam = grayscale_cam[0, :]
-        cams = np.append(cams, grayscale_cam).reshape(i+1, 32, 32)  ### 確認
+        # cams = np.append(cams, grayscale_cam).reshape(i+1, 32, 32)  ### 確認
+        cams = np.append(cams, grayscale_cam)
     
     cams = torch.tensor(cams)
     return cams
