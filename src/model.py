@@ -4,7 +4,7 @@ import torch.nn as nn
 class TeacherConvBnAct(nn.Module):
     def __init__(self, input_dim, output_dim):
         super().__init__()
-        self.conv = nn.Conv2d(input_dim, output_dim, 3)
+        self.conv = nn.Conv2d(input_dim, output_dim, 3, padding=1)
         self.dropout = nn.Dropout(p=0.2)
         self.bn = nn.BatchNorm2d(output_dim)
         self.relu = nn.ReLU(inplace=True)
@@ -68,9 +68,8 @@ class StudentModel(BaseModel):
         self.layer2 = self._make_student_layer(4, 16, 32)
         self.layer3 = self._make_student_layer(4, 32, 64)
         self.layer4 = self._make_student_layer(4, 64, 128)
-        self.mlp = MLP(512, 128, 2)
-        # self.maxpool = nn.MaxPool2d(3, stride=2)
-        self.maxpool = nn.MaxPool2d(3, stride=3)
+        self.mlp = MLP(128, 128, 10)
+        self.maxpool = nn.MaxPool2d(3, stride=2)
     
     def forward(self, x):
         # import ipdb; ipdb.set_trace()

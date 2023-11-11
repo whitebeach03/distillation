@@ -50,7 +50,7 @@ def main():
         cam_student_cam = create_cam(cam_student, input_image, image, label)
 
         # visualize and save CAM
-        fig, ax = plt.subplots(2, 2)
+        fig, ax = plt.subplots(1, 4)
         ax[0].set_title('student')
         ax[1].set_title('teacher')
         ax[2].set_title('student(distilled)')
