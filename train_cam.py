@@ -28,21 +28,19 @@ def main():
         transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean = [0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
         trainset = datasets.CIFAR10(root=data_dir, download=True, train=True, transform=transform)
         testset = datasets.CIFAR10(root=data_dir, download=True, train=False, transform=transform)
+        n_samples = len(trainset)
+        n_train = int(n_samples * 0.8)
+        n_val = n_samples - n_train
+        trainset, valset = random_split(trainset, [n_train, n_val])
         
         # data_dir = './data/covid19'
         # transform = transforms.Compose([transforms.Resize(224), transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
         # dataset = datasets.ImageFolder(root=data_dir, transform=transform)
-        
         # n_samples = len(dataset)
         # n_val = int(n_samples * 0.2)
         # n_test = n_val
         # n_train = n_samples - n_val - n_test
         # trainset, valset, testset = random_split(dataset, [n_train, n_val, n_test])
-        
-        n_samples = len(trainset)
-        n_train = int(n_samples * 0.8)
-        n_val = n_samples - n_train
-        trainset, valset = random_split(trainset, [n_train, n_val])
         
         train_dataloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=8)
         val_dataloader = DataLoader(valset, batch_size=batch_size, shuffle=False)
@@ -90,10 +88,11 @@ def main():
                 images, labels = images.to(device), labels.to(device)
                 preds = student(images)
                 targets = teacher(images)
-            
+        
                 student_cam = cam(student, images, labels, batch_size, device)
-                teacher_cam = cam(teacher, images, labels, batch_size, device) # torch.Size([batch_size=128, 32, 32])
-                loss = 0.3*loss_fn(preds, labels) + 0.2*T*T*soft_loss(preds, targets) + 0.5*cam_loss(student_cam, teacher_cam)
+                teacher_cam = cam(teacher, images, labels, batch_size, device)
+                # loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam)
+                loss = loss_fn(preds, labels) + cam_loss(student_cam, teacher_cam)
                     
                 optim.zero_grad()
                 loss.backward()
@@ -110,7 +109,7 @@ def main():
                     images,labels = images.to(device),labels.to(device)
                     preds = student(images)
                     targets= teacher(images)
-                    loss = loss_fn(preds, labels) + T * T * soft_loss(preds, targets)
+                    loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets)
                     val_loss += loss.item()
                     val_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
                 val_loss /= len(val_dataloader)

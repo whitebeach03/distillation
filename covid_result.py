@@ -69,7 +69,6 @@ def load_best_test(path, iteration):
             best_index = i
     best_acc *= 100
     best_acc = round(best_acc, 2)
-    print(best_index)
     return best_acc
 
 def load_avg_test(path, iteration):
