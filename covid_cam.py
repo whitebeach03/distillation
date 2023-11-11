@@ -1,7 +1,9 @@
+import random
 import torch
 import numpy as np
 import torchvision.transforms as transforms
 from torchvision import datasets
+from torch.utils.data import random_split, DataLoader
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam import GradCAM
@@ -12,6 +14,7 @@ from torchvision.transforms import InterpolationMode
 name = {0: 'covid-19', 1: 'normal', 2: 'opacity', 3: 'pneumonia'}
 
 def main():
+    batch_size = 32
     BICUBIC = InterpolationMode.BICUBIC
     torch.manual_seed(1234)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -21,9 +24,10 @@ def main():
     teacher = TModel().to(device)
     st = Model().to(device)
     
-    student.load_state_dict(torch.load('./logs/student/00.pth'))
-    teacher.load_state_dict(torch.load('./logs/teacher/00.pth'))
-    st.load_state_dict(torch.load('./logs/student_st/00.pth'))
+    # load best params
+    student.load_state_dict(torch.load('./logs/student/05.pth'))
+    teacher.load_state_dict(torch.load('./logs/teacher/08.pth'))
+    st.load_state_dict(torch.load('./logs/student_st/02.pth'))
     
     student.eval()
     teacher.eval()
@@ -35,11 +39,12 @@ def main():
     img_transform = transforms.Compose([transforms.Resize(224, interpolation=BICUBIC), transforms.ToTensor()])
     dataset = datasets.ImageFolder(root=data_dir)
 
-    for i in range(10):
+    for t in range(10):
+        i = random.randint(0, len(dataset))
         image, label = dataset[i]
         input_image = input_transform(image)
         image = img_transform(image)
-
+    
         # create CAM
         student_cam = create_cam(student, input_image, image, label)
         teacher_cam = create_cam(teacher, input_image, image, label)
