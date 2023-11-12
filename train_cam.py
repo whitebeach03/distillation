@@ -89,7 +89,11 @@ def main():
         
                 student_cam = cam(student, images, labels, batch_size, device)
                 teacher_cam = cam(teacher, images, labels, batch_size, device)
-                loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam)
+                student_cam = torch.tensor(student_cam, requires_grad=True)
+                teacher_cam = torch.tensor(teacher_cam, requires_grad=True)
+
+                # loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam)
+                loss = cam_loss(student_cam, teacher_cam)
                     
                 optim.zero_grad()
                 loss.backward()
@@ -106,7 +110,8 @@ def main():
                     images,labels = images.to(device),labels.to(device)
                     preds = student(images)
                     targets= teacher(images)
-                    loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets)
+                    # loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets)
+                    loss = cam_loss(student_cam, teacher_cam)
                     val_loss += loss.item()
                     val_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
                 val_loss /= len(val_dataloader)
@@ -115,7 +120,7 @@ def main():
             if score <= val_acc:
                 print('test')
                 score = val_acc
-                torch.save(student.state_dict(), './logs/student_cam/' + str(i) + '.pth') 
+                torch.save(student.state_dict(), './logs/student_cam/cam' + str(i) + '.pth') 
             
             student_hist['loss'].append(train_loss)
             student_hist['accuracy'].append(train_acc)
@@ -124,10 +129,10 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
             
-            with open('./history/student_cam/' + str(i) + '.pickle', mode='wb') as f:
+            with open('./history/student_cam/cam' + str(i) + '.pickle', mode='wb') as f:
                 pickle.dump(student_hist, f)
         
-        student.load_state_dict(torch.load('./logs/student_cam/' + str(i) + '.pth'))
+        student.load_state_dict(torch.load('./logs/student_cam/cam' + str(i) + '.pth'))
         test = {'acc': [], 'loss': []}
         # distillation student test
         student.eval()
@@ -145,7 +150,7 @@ def main():
         print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
-        with open('./history/student_cam/test' + str(i) + '.pickle', mode='wb') as f:
+        with open('./history/student_cam/testcam' + str(i) + '.pickle', mode='wb') as f:
             pickle.dump(test, f)
 
 def cam(model, images, labels, batch_size, device):
@@ -162,7 +167,7 @@ def cam(model, images, labels, batch_size, device):
         # cams = np.append(cams, grayscale_cam).reshape(i+1, 32, 32)  ### 確認
         cams = np.append(cams, grayscale_cam)
     
-    cams = torch.tensor(cams)
+    # cams = torch.tensor(cams)
     return cams
 
 if __name__ == '__main__':
