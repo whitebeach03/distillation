@@ -16,7 +16,7 @@ import pickle
 from torchvision.models.feature_extraction import create_feature_extractor
 
 def main():
-    for i in range(1):
+    for i in range(1, 5):
         epochs = 50
         batch_size = 128
         np.random.seed(i)

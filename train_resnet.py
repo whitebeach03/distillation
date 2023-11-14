@@ -16,7 +16,7 @@ import pickle
 def main():
     for i in range(1, 5):
         print(i)
-        model_size = 'student'
+        model_size = 'teacher'
         epochs = 50
         batch_size = 128
         torch.manual_seed(i)
