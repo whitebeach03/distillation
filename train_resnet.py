@@ -14,9 +14,9 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(1):
+    for i in range(1, 5):
         print(i)
-        model_size = 'teacher'
+        model_size = 'student'
         epochs = 50
         batch_size = 128
         torch.manual_seed(i)

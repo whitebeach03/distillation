@@ -10,14 +10,14 @@ def main():
     cam_path = './history/resnet/cam/'
     
     # loading history
-    student_acc = load_hist(student_path, 1)
+    student_acc = load_hist(student_path, 5)
     teacher_acc = load_hist(teacher_path, 1)
     st_acc = load_hist(st_path, 1)
     cam_acc = load_hist(cam_path, 1)
     
     # print test accuracy
-    student_avg = load_avg_test(student_path, 1)
-    student_best = load_best_test(student_path, 1)
+    student_avg = load_avg_test(student_path, 5)
+    student_best = load_best_test(student_path, 5)
     teacher_avg = load_avg_test(teacher_path, 1)
     teacher_best = load_best_test(teacher_path, 1)
     st_avg = load_avg_test(st_path, 1)
@@ -44,7 +44,7 @@ def main():
     plt.xticks(np.arange(0, 55, 5))
     plt.yticks(np.arange(0.60, 0.90, 0.05))
     plt.xlim(0, 51)
-    plt.ylim(0.60, 0.90)
+    plt.ylim(0.55, 0.90)
     
     plt.legend()
     plt.savefig('./result/resnet_result.png')
