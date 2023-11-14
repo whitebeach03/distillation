@@ -1,24 +1,24 @@
-from tqdm import tqdm
-import os
 import numpy as np
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision import datasets
-from torch.utils.data import random_split, DataLoader
-from src.model import resnet_student, resnet_teacher
-from src.utils import EarlyStopping
+from torch.utils.data import random_split,DataLoader
+from src.model import SampleModel
 import torch.optim as optimizers
-from sklearn.metrics import accuracy_score
 from src.kd_loss.st import SoftTargetLoss
+from src.utils import EarlyStopping
+from tqdm import tqdm
+from sklearn.metrics import accuracy_score
+import os
+import random
 import pickle
 
 def main():
     for i in range(1):
-        print(i)
-        model_size = 'teacher'
-        epochs = 50
+        epochs = 100
         batch_size = 128
+        print(i)
         torch.manual_seed(i)
         np.random.seed(i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -32,34 +32,38 @@ def main():
         n_val = n_samples - n_train
         trainset, valset = random_split(trainset, [n_train, n_val])
         
+        # data_dir = './data/covid19'
+        # transform = transforms.Compose([transforms.Resize(224), transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
+        # dataset = datasets.ImageFolder(root=data_dir, transform=transform)
+        # n_samples = len(dataset)
+        # n_val = int(n_samples * 0.2)
+        # n_test = n_val
+        # n_train = n_samples - n_val - n_test
+        # trainset, valset, testset = random_split(dataset, [n_train, n_val, n_test])
+        
         train_dataloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=8)
         val_dataloader = DataLoader(valset, batch_size=batch_size, shuffle=False)
         test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
         
-        # setting model
-        if model_size == 'teacher':
-            model = resnet_teacher().to(device)
-        elif model_size == 'student':
-            model = resnet_student().to(device)
-
+        model = SampleModel().to(device)
         optim = optimizers.Adam(model.parameters())
         loss_fn = nn.CrossEntropyLoss()
         score = 0.
-        history = {'loss': [], 'accuracy': [], 'val_loss':[], 'val_accuracy': []}
-        
+        history = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
+
         for epoch in range(epochs):
-            train_acc = 0.
             train_loss = 0.
-            val_acc = 0.
+            train_acc = 0.
             val_loss = 0.
+            val_acc = 0.
             
             # train
             model.train()
-            for (images, labels) in tqdm(train_dataloader, leave=False):
-                images, labels = images.to(device), labels.to(device)
+            for (images,labels) in tqdm(train_dataloader, leave=False):
+                images, labels= images.to(device),labels.to(device)
                 
                 preds, _ = model(images)
-                loss = loss_fn(preds,labels)
+                loss = loss_fn(preds, labels)
                 
                 optim.zero_grad()
                 loss.backward()
@@ -70,12 +74,12 @@ def main():
                 
             train_loss /= len(train_dataloader)
             train_acc /= len(train_dataloader)
-            
+
             # validation
             model.eval()
             with torch.no_grad():
-                for (images, labels) in val_dataloader:
-                    images,labels = images.to(device), labels.to(device)
+                for (images,labels) in val_dataloader:
+                    images, labels = images.to(device), labels.to(device)
                     
                     preds, _ = model(images)
                     loss = loss_fn(preds, labels)
@@ -85,12 +89,11 @@ def main():
                     
                 val_loss /= len(val_dataloader)
                 val_acc /= len(val_dataloader)
-            
-            # save params
+             
             if score <= val_acc:
                 print('save param')
                 score = val_acc
-                torch.save(model.state_dict(), './logs/resnet/' + str(model_size) + '/' + str(i) + '.pth') ######## 
+                torch.save(model.state_dict(), './logs/sample/' + str(i) + '.pth') 
 
             history['loss'].append(train_loss)
             history['accuracy'].append(train_acc)
@@ -98,20 +101,20 @@ def main():
             history['val_accuracy'].append(val_acc)
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
-        
-        with open('./history/resnet/' + str(model_size) + '/' + str(i) + '.pickle', mode='wb') as f: #########
+            
+        with open('./history/sample/' + str(i) + '.pickle', mode='wb') as f: ###############
             pickle.dump(history, f)
-
+            
         # model test
-        model.load_state_dict(torch.load('./logs/resnet/' + str(model_size) + '/' + str(i) + '.pth'))
+        model.load_state_dict(torch.load('./logs/sample/' + str(i) + '.pth'))
+        test = {'acc': [], 'loss': []}
         model.eval()
         
-        test = {'acc': [], 'loss': []}
         test_loss = 0.
         test_acc = 0.
         with torch.no_grad():
             for (images,labels) in test_dataloader:
-                images, labels = images.to(device), labels.to(device)
+                images, labels = images.to(device),labels.to(device)
                 
                 preds, _ = model(images)
                 loss = loss_fn(preds, labels)
@@ -122,13 +125,11 @@ def main():
         test_loss /= len(test_dataloader)
         test_acc /= len(test_dataloader)
         print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
-
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
         
-        with open('./history/resnet/' + str(model_size) + '/' + 'test' + str(i) + '.pickle', mode='wb') as f: 
+        with open('./history/sample/test' + str(i) + '.pickle', mode='wb') as f:
             pickle.dump(test, f)
-        
     
 if __name__ == '__main__':
     main()
