@@ -62,8 +62,8 @@ def main():
         optim = optimizers.Adam(student.parameters())
         T = 10 
         score = 0.
-        soft_loss = SoftTargetLoss() # ソフトターゲット
-        cam_loss = nn.MSELoss() # CAMターゲット
+        soft_loss = SoftTargetLoss() # Soft Loss
+        cam_loss = nn.MSELoss() # CAM Loss
         for epoch in range(epochs):
             train_loss = 0.
             train_acc = 0.

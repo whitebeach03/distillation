@@ -42,9 +42,9 @@ def main():
     plt.plot(x, cam_acc, label='Proposed', linewidth=0.5, color='green')
     
     plt.xticks(np.arange(0, 55, 5))
-    plt.yticks(np.arange(0.60, 0.90, 0.05))
+    plt.yticks(np.arange(0.55, 0.95, 0.05))
     plt.xlim(0, 51)
-    plt.ylim(0.55, 0.90)
+    plt.ylim(0.60, 0.90)
     
     plt.legend()
     plt.savefig('./result/resnet_result.png')

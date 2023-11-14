@@ -410,11 +410,11 @@ def resnet_teacher(output_dim=10):
     return ResNetAssistant(BottleNeck, [4,6,9,4], num_classes=output_dim)
     
 # モデルのパラメータ数のカウント
-# teacher = TModel()
-# student = Model()
+teacher = resnet_teacher()
+student = resnet_student()
 
-# def count_parameters(model):
-#     return sum(param.numel() for param in model.parameters() if param.requires_grad)
+def count_parameters(model):
+    return sum(param.numel() for param in model.parameters() if param.requires_grad)
 
-# print(f"Teacher parameters: {count_parameters(teacher)}")
-# print(f"Student parameters: {count_parameters(student)}")
+print(f"Teacher parameters: {count_parameters(teacher)}")
+print(f"Student parameters: {count_parameters(student)}")
