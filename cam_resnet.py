@@ -68,19 +68,20 @@ def main():
             # st_cam = create_student_cam(image, label, st_feature, st)
             
             fig, ax = plt.subplots(1, 4)
-            ax[0].set_title('Student')
-            ax[1].set_title('Teacher')
-            ax[2].set_title('Proposed')
+            ax[0].set_title('Image')
+            ax[1].set_title('Student')
+            ax[2].set_title('Teacher')
             # ax[3].set_title('Distillation')
-            ax[3].set_title('Image')
-            ax[0].imshow(student_cam)
-            ax[1].imshow(teacher_cam)
-            ax[2].imshow(model_cam)
+            ax[3].set_title('Proposed')
+            
+            ax[0].imshow(image.permute(1, 2, 0).cpu().numpy())
+            ax[1].imshow(student_cam)
+            ax[2].imshow(teacher_cam)
             # ax[3].imshow(st_cam)
-            ax[3].imshow(image.permute(1, 2, 0).cpu().numpy())
+            ax[3].imshow(model_cam)
     
-            plt.suptitle(name[label], fontsize=20)
-            plt.savefig('./cam/sample_cam' + str(i) + '.png')
+            plt.suptitle(name[label], fontsize=35)
+            plt.savefig('./cam/' + str(i) + '.png')
         
         break
 
