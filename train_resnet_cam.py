@@ -16,8 +16,8 @@ import pickle
 from torchvision.models.feature_extraction import create_feature_extractor
 
 def main():
-    for i in range(1, 5):
-        epochs = 50
+    for i in range(10, 11):
+        epochs = 100
         batch_size = 128
         np.random.seed(i)
         torch.manual_seed(i)
@@ -39,7 +39,7 @@ def main():
         teacher = resnet_teacher().to(device)
         student = resnet_student().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth'))
+        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(0) + '.pth')) # 変更箇所: str(i) -> str(0) 
         loss_fn = nn.CrossEntropyLoss() 
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         
@@ -78,8 +78,9 @@ def main():
                 student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
                 teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
 
-                loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam)
-                    
+                # loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam) # 1
+                loss = loss_fn(preds, labels) + cam_loss(student_cam, teacher_cam) # 2
+                
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
@@ -92,7 +93,7 @@ def main():
             student.eval()
             with torch.no_grad():
                 for (images,labels) in val_dataloader:
-                    images,labels = images.to(device),labels.to(device)
+                    images,labels = images.to(device), labels.to(device)
                     preds, _ = student(images)
                     targets, _ = teacher(images)
                     loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets)
@@ -102,7 +103,7 @@ def main():
                 val_acc /= len(val_dataloader)
                 
             if score <= val_acc:
-                print('test')
+                print('save param')
                 score = val_acc
                 torch.save(student.state_dict(), './logs/resnet/cam/' + str(i) + '.pth') 
             
@@ -149,8 +150,9 @@ def create_student_cam(model, images, labels, features, batch_size, device):
         cam = cam.detach().cpu().numpy()
         cam = np.sum(cam, axis=0)
     
-        np.append(attmap, cam)
+        attmap = np.append(attmap, cam)
     attmap = torch.tensor(attmap)
+    attmap = attmap.to(device)
     return attmap
 
 def create_teacher_cam(model, images, labels, features, batch_size, device):
@@ -165,8 +167,9 @@ def create_teacher_cam(model, images, labels, features, batch_size, device):
         cam = cam.detach().cpu().numpy()
         cam = np.sum(cam, axis=0)
     
-        np.append(attmap, cam)
+        attmap = np.append(attmap, cam)
     attmap = torch.tensor(attmap)
+    attmap = attmap.to(device)
     return attmap
 
 if __name__ == '__main__':

@@ -24,19 +24,22 @@ def main():
     # setting ResNet 
     student = resnet_student().to(device)
     teacher = resnet_teacher().to(device)
-    model = resnet_student().to(device)
-    # st = resnet_student().to(device)
+    proposed = resnet_student().to(device)
+    hardcam = resnet_student().to(device)
+    st = resnet_student().to(device)
     
 
     student.load_state_dict(torch.load('./logs/resnet/student/0.pth'))
     teacher.load_state_dict(torch.load('./logs/resnet/teacher/0.pth'))
-    model.load_state_dict(torch.load('logs/resnet/cam/0.pth'))
-    # st.load_state_dict(torch.load('logs/resnet/st/0.pth'))
+    proposed.load_state_dict(torch.load('logs/resnet/cam/0.pth'))
+    hardcam.load_state_dict(torch.load('logs/resnet/sample/0.pth'))
+    st.load_state_dict(torch.load('logs/resnet/st/0.pth'))
  
     student.eval()
     teacher.eval()
-    model.eval()
-    # st.eval()
+    proposed.eval()
+    hardcam.eval()
+    st.eval()
 
     # setting dataset
     data_dir = './data/cifar10'
@@ -47,41 +50,46 @@ def main():
 
     for images, labels in dataloader:
         images, labels = images.to(device), labels.to(device)
-        preds, student_cams = student(images)
-        preds, teacher_cams = teacher(images)
-        preds, model_cams = model(images)
-        # preds, st_cams = st(images)
+        _, student_cams = student(images)
+        _, teacher_cams = teacher(images)
+        _, proposed_cams = proposed(images)
+        _, hardcam_cams = hardcam(images)
+        preds, st_cams = st(images)
 
         # show 10-CAM
         for i in range(10):
             image = images[i]
-            pred = preds[i].argmax()
+            # pred = preds[i].argmax()
             label = int(labels[i])
             student_feature = student_cams[i].to(device)
             teacher_feature = teacher_cams[i].to(device)
-            model_feature = model_cams[i].to(device)
-            # st_feature = st_cams[i].to(device)
+            proposed_feature = proposed_cams[i].to(device)
+            hardcam_feature = hardcam_cams[i].to(device)
+            st_feature = st_cams[i].to(device)
           
             student_cam = create_student_cam(image, label, student_feature, student)
             teacher_cam = create_teacher_cam(image, label, teacher_feature, teacher)
-            model_cam = create_student_cam(image, label, model_feature, model)
-            # st_cam = create_student_cam(image, label, st_feature, st)
+            proposed_cam = create_student_cam(image, label, proposed_feature, proposed)
+            hardcam_cam = create_student_cam(image, label, hardcam_feature, hardcam)
+            st_cam = create_student_cam(image, label, st_feature, st)
             
-            fig, ax = plt.subplots(1, 4)
-            ax[0].set_title('Image')
-            ax[1].set_title('Student')
-            ax[2].set_title('Teacher')
-            # ax[3].set_title('Distillation')
-            ax[3].set_title('Proposed')
+            fig, ax = plt.subplots(2, 3)
+            ax[0][0].set_title('Image')
+            ax[0][1].set_title('Teacher')
+            ax[0][2].set_title('Student')
+            ax[1][0].set_title('hard+CAMloss')
+            ax[1][1].set_title('Proposed')
+            ax[1][2].set_title('distillation')
             
-            ax[0].imshow(image.permute(1, 2, 0).cpu().numpy())
-            ax[1].imshow(student_cam)
-            ax[2].imshow(teacher_cam)
-            # ax[3].imshow(st_cam)
-            ax[3].imshow(model_cam)
+            ax[0][0].imshow(image.permute(1, 2, 0).cpu().numpy())
+            ax[0][1].imshow(teacher_cam)
+            ax[0][2].imshow(student_cam)
+            ax[1][0].imshow(hardcam_cam)
+            ax[1][1].imshow(proposed_cam)
+            ax[1][2].imshow(st_cam)
     
-            plt.suptitle(name[label], fontsize=35)
-            plt.savefig('./cam/' + str(i) + '.png')
+            plt.suptitle(name[label], fontsize=17)
+            plt.savefig('./cam/0' + str(i) + '.png')
         
         break
 
@@ -109,9 +117,9 @@ def create_teacher_cam(image, label, feature, teacher):
     visualization = show_cam_on_image(image.permute(1, 2, 0).cpu().numpy(), cam, use_rgb=True)
     return visualization
 
-def create_sample_cam(image, label, feature, model):
+def create_sample_cam(image, label, feature, proposed):
     cam = 0
-    weight = model.fc.weight[label]
+    weight = proposed.fc.weight[label]
     for i in range(128):
         cam += feature[i] * weight[i]
         

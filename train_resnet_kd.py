@@ -14,9 +14,9 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(1, 5):
+    for i in range(1):
         print(i)
-        epochs = 50
+        epochs = 100
         batch_size = 128
         np.random.seed(i)
         torch.manual_seed(i)
@@ -47,7 +47,7 @@ def main():
         teacher = resnet_teacher().to(device)
         student = resnet_student().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth'))
+        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth')) # 変更箇所: str(i) -> str(0)
         loss_fn = nn.CrossEntropyLoss()
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         

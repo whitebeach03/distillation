@@ -8,20 +8,22 @@ def main():
     teacher_path = './history/resnet/teacher/'
     st_path = './history/resnet/st/'
     cam_path = './history/resnet/cam/'
+    sample_path = ('./history/resnet/sample/')
     
     # loading history
-    student_acc = load_hist(student_path, 5)
-    teacher_acc = load_hist(teacher_path, 5)
-    st_acc = load_hist(st_path, 5)
+    student_acc = load_hist(student_path, 1)
+    teacher_acc = load_hist(teacher_path, 1)
+    st_acc = load_hist(st_path, 1)
     cam_acc = load_hist(cam_path, 1)
+    sample_acc = load_hist(sample_path, 1)
     
     # print test accuracy
-    student_avg = load_avg_test(student_path, 5)
-    student_best = load_best_test(student_path, 5)
-    teacher_avg = load_avg_test(teacher_path, 5)
-    teacher_best = load_best_test(teacher_path, 5)
-    st_avg = load_avg_test(st_path, 5)
-    st_best = load_best_test(st_path, 5)
+    student_avg = load_avg_test(student_path, 1)
+    student_best = load_best_test(student_path,1)
+    teacher_avg = load_avg_test(teacher_path, 1)
+    teacher_best = load_best_test(teacher_path, 1)
+    st_avg = load_avg_test(st_path, 1)
+    st_best = load_best_test(st_path, 1)
     cam_avg = load_avg_test(cam_path, 1)
     cam_best = load_best_test(cam_path, 1)
     print('Student avg: ' + str(student_avg) + ' best: ' + str(student_best))
@@ -30,7 +32,7 @@ def main():
     print('CAM-Distillation avg: ' + str(cam_avg) + ' best: ' + str(cam_best))
     
     # plot result
-    x = np.arange(50)
+    x = np.arange(100)
     fig = plt.figure()
     fig.patch.set_facecolor('white')
     plt.xlabel('epoch')
@@ -40,10 +42,11 @@ def main():
     plt.plot(x, teacher_acc, label='Teacher', linewidth=0.5, color='blue')
     plt.plot(x, st_acc, label='Distillation', linewidth=0.5, color='orange')
     plt.plot(x, cam_acc, label='Proposed', linewidth=0.5, color='green')
+    # plt.plot(x, sample_acc, label='hard+CAMloss', linewidth=0.5, color='black')
     
-    plt.xticks(np.arange(0, 55, 5))
+    plt.xticks(np.arange(0, 110, 10))
     plt.yticks(np.arange(0.55, 0.95, 0.05))
-    plt.xlim(0, 51)
+    plt.xlim(0, 101)
     plt.ylim(0.60, 0.90)
     
     plt.legend()
