@@ -15,7 +15,7 @@ import random
 import pickle
 
 def main():
-    for i in range(5, 10):
+    for i in range(1):
         epochs = 50
         batch_size = 32
         print(i+1)
