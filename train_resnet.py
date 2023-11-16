@@ -14,7 +14,7 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(1):
+    for i in range(10):
         print(i)
         model_size = 'teacher'
         epochs = 100

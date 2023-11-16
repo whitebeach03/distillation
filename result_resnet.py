@@ -13,8 +13,8 @@ def main():
     # loading history
     student_acc = load_hist(student_path, 1)
     teacher_acc = load_hist(teacher_path, 5)
-    st_acc = load_hist(st_path, 4)
-    cam_acc = load_hist(cam_path, 1)
+    st_acc = load_hist(st_path, 5)
+    cam_acc = load_hist(cam_path, 5)
     sample_acc = load_hist(sample_path, 1)
     
     # print test accuracy
@@ -22,10 +22,10 @@ def main():
     student_best = load_best_test(student_path,1)
     teacher_avg = load_avg_test(teacher_path, 5)
     teacher_best = load_best_test(teacher_path, 5)
-    st_avg = load_avg_test(st_path, 4)
-    st_best = load_best_test(st_path, 4)
-    cam_avg = load_avg_test(cam_path, 1)
-    cam_best = load_best_test(cam_path, 1)
+    st_avg = load_avg_test(st_path, 5)
+    st_best = load_best_test(st_path, 5)
+    cam_avg = load_avg_test(cam_path, 5)
+    cam_best = load_best_test(cam_path, 5)
     print('Student avg: ' + str(student_avg) + ' best: ' + str(student_best))
     print('Teacher avg: ' + str(teacher_avg) + ' best: ' + str(teacher_best))
     print('Distillation avg: ' + str(st_avg) + ' best: ' + str(st_best))

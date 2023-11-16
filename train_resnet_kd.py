@@ -14,7 +14,7 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(1, 5):
+    for i in range(4, 5):
         print(i)
         epochs = 100
         batch_size = 128
@@ -104,7 +104,7 @@ def main():
                 val_acc /= len(val_dataloader)
                 
             if score <= val_acc:
-                print('test')
+                print('save param')
                 score = val_acc
                 torch.save(student.state_dict(), './logs/resnet/st/' + str(i) + '.pth') 
             

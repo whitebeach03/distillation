@@ -16,7 +16,7 @@ import pickle
 from torchvision.models.feature_extraction import create_feature_extractor
 
 def main():
-    for i in range(1):
+    for i in range(1, 5):
         epochs = 100
         batch_size = 128
         np.random.seed(i)
@@ -39,7 +39,7 @@ def main():
         teacher = resnet_teacher().to(device)
         student = resnet_student().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(0) + '.pth')) # 変更箇所: str(i) -> str(0) 
+        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth')) # 変更箇所: str(i) -> str(0) 
         loss_fn = nn.CrossEntropyLoss() 
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         

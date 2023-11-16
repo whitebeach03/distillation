@@ -16,8 +16,8 @@ import pickle
 def main():
     for i in range(1):
         print(i+1)
-        epochs = 50
-        batch_size = 32
+        epochs = 100
+        batch_size = 128
         torch.manual_seed(i)
         np.random.seed(i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -78,7 +78,7 @@ def main():
             student.eval()
             with torch.no_grad():
                 for (images, labels) in val_dataloader:
-                    images,labels = images.to(device), labels.to(device)
+                    images, labels = images.to(device), labels.to(device)
                     
                     preds = student(images)
                     loss = loss_fn(preds, labels)

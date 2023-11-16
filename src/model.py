@@ -4,7 +4,7 @@ import torch.nn as nn
 class TeacherConvBnAct(nn.Module):
     def __init__(self, input_dim, output_dim):
         super().__init__()
-        self.conv = nn.Conv2d(input_dim, output_dim, 3, padding=1)
+        self.conv = nn.Conv2d(input_dim, output_dim, 3)
         self.dropout = nn.Dropout(p=0.2)
         self.bn = nn.BatchNorm2d(output_dim)
         self.relu = nn.ReLU(inplace=True)
@@ -19,7 +19,7 @@ class TeacherConvBnAct(nn.Module):
 class StudentConvBnAct(nn.Module):
     def __init__(self, input_dim, output_dim):
         super().__init__()
-        self.conv = nn.Conv2d(input_dim, output_dim, 3, padding=1)
+        self.conv = nn.Conv2d(input_dim, output_dim, 3)
         self.bn = nn.BatchNorm2d(output_dim)
         self.relu = nn.ReLU(inplace=True)
         
@@ -187,7 +187,7 @@ class TModel(BaseModel):
 ### ResNet ###
 class BasicBlock(nn.Module):
     rate=1
-    def __init__(self, input_dim, output_dim,stride=1,drop=0.3):
+    def __init__(self, input_dim, output_dim, stride=1, drop=0.3):
         super().__init__()
         
         self.relu = nn.ReLU(inplace=True)
@@ -253,7 +253,7 @@ class ResNetStudent(nn.Module):
         self.drop = drop
         
         self.conv1 = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=3, padding=1, bias=False),
+            nn.Conv2d(3, 16, kernel_size=3, bias=False),
             nn.BatchNorm2d(16),
             nn.ReLU(inplace=True)
         )
@@ -339,7 +339,7 @@ class ResNet(nn.Module):
         self.drop = drop
         
         self.conv1 = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=3, padding=1, bias=False),
+            nn.Conv2d(3, 64, kernel_size=3, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True)
         )
@@ -377,11 +377,11 @@ class ResNet(nn.Module):
 class SampleModel(nn.Module):
     def __init__(self, input_dim=3):
         super().__init__()
-        self.conv1 = nn.Conv2d(input_dim, 32, 3, padding=1)
-        self.conv2 = nn.Conv2d(32, 32, 3, padding=1)
-        self.conv3 = nn.Conv2d(32, 128, 3, padding=1)
-        self.conv4 = nn.Conv2d(128, 128, 3, padding=1)
-        self.conv5 = nn.Conv2d(128, 128, 3, padding=1)
+        self.conv1 = nn.Conv2d(input_dim, 32, 3, padding='same')
+        self.conv2 = nn.Conv2d(32, 32, 3, padding='same')
+        self.conv3 = nn.Conv2d(32, 128, 3, padding='same')
+        self.conv4 = nn.Conv2d(128, 128, 3, padding='same')
+        self.conv5 = nn.Conv2d(128, 128, 3, padding='same')
         self.maxpool = nn.MaxPool2d(2, stride=2)
         self.relu = nn.ReLU(inplace=True)
         self.gap = nn.AdaptiveAvgPool2d((1, 1))
@@ -393,12 +393,13 @@ class SampleModel(nn.Module):
         x = self.maxpool(x)
         x = self.relu(self.conv3(x))
         x = self.relu(self.conv4(x))
+        x = self.maxpool(x)
         x = self.relu(self.conv5(x))
         self.attmap = x
         x = self.gap(x)
         x = x.view(x.shape[0], -1)
         x = self.fc(x)
-        return x, [self.attmap, self.fc.weight]
+        return x, self.attmap
         
 
 # ResNet98
@@ -411,10 +412,18 @@ def resnet_teacher(output_dim=10):
     
 # モデルのパラメータ数のカウント
 teacher = resnet_teacher()
-student = resnet_student()
+student = SampleModel()
+teacher.eval()
+student.eval()
 
 def count_parameters(model):
     return sum(param.numel() for param in model.parameters() if param.requires_grad)
 
 print(f"Teacher parameters: {count_parameters(teacher)}")
 print(f"Student parameters: {count_parameters(student)}")
+
+images = torch.randn(128, 3, 32, 32)
+# _, student_att = student(images)
+# print(student_att.shape)
+# _, teacher_att = teacher(images)
+# print(teacher_att.shape)
