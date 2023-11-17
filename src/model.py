@@ -412,7 +412,7 @@ def resnet_teacher(output_dim=10):
     
 # モデルのパラメータ数のカウント
 teacher = resnet_teacher()
-student = SampleModel()
+student = resnet_student()
 teacher.eval()
 student.eval()
 
@@ -422,8 +422,3 @@ def count_parameters(model):
 print(f"Teacher parameters: {count_parameters(teacher)}")
 print(f"Student parameters: {count_parameters(student)}")
 
-images = torch.randn(128, 3, 32, 32)
-# _, student_att = student(images)
-# print(student_att.shape)
-# _, teacher_att = teacher(images)
-# print(teacher_att.shape)

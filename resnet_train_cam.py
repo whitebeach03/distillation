@@ -13,7 +13,7 @@ from sklearn.metrics import accuracy_score
 from src.kd_loss.st import SoftTargetLoss
 from src.kd_loss.cam_loss import CAMLoss
 import pickle
-from torchvision.models.feature_extraction import create_feature_extractor
+# from torchvision.models.feature_extraction import create_feature_extractor
 
 def main():
     for i in range(1, 5):
@@ -78,8 +78,8 @@ def main():
                 student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
                 teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
 
-                # loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam) # 1
-                loss = loss_fn(preds, labels) + cam_loss(student_cam, teacher_cam) # 2
+                loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam) # 1
+                # loss = loss_fn(preds, labels) + cam_loss(student_cam, teacher_cam) # 2
                 
                 optim.zero_grad()
                 loss.backward()
