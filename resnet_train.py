@@ -6,7 +6,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision import datasets
 from torch.utils.data import random_split, DataLoader
-from src.model import resnet_student, resnet_teacher
+from src.model import resnet_student, resnet_teacher, SampleModel
 from src.utils import EarlyStopping
 import torch.optim as optimizers
 from sklearn.metrics import accuracy_score
@@ -14,7 +14,7 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(1, 5):
+    for i in range(5):
         print(i)
         model_size = 'student'
         epochs = 100
@@ -41,6 +41,8 @@ def main():
             model = resnet_teacher().to(device)
         elif model_size == 'student':
             model = resnet_student().to(device)
+        elif model_size == 'cnn':
+            model = SampleModel().to(device)
 
         optim = optimizers.Adam(model.parameters())
         loss_fn = nn.CrossEntropyLoss()

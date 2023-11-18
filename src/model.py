@@ -377,11 +377,11 @@ class ResNet(nn.Module):
 class SampleModel(nn.Module):
     def __init__(self, input_dim=3):
         super().__init__()
-        self.conv1 = nn.Conv2d(input_dim, 32, 3, padding='same')
-        self.conv2 = nn.Conv2d(32, 32, 3, padding='same')
-        self.conv3 = nn.Conv2d(32, 128, 3, padding='same')
-        self.conv4 = nn.Conv2d(128, 128, 3, padding='same')
-        self.conv5 = nn.Conv2d(128, 128, 3, padding='same')
+        self.conv1 = nn.Conv2d(input_dim, 32, 3, padding=1)
+        self.conv2 = nn.Conv2d(32, 32, 3, padding=1)
+        self.conv3 = nn.Conv2d(32, 128, 3, padding=1)
+        self.conv4 = nn.Conv2d(128, 128, 3, padding=1)
+        self.conv5 = nn.Conv2d(128, 128, 3, padding=1)
         self.maxpool = nn.MaxPool2d(2, stride=2)
         self.relu = nn.ReLU(inplace=True)
         self.gap = nn.AdaptiveAvgPool2d((1, 1))
@@ -403,8 +403,11 @@ class SampleModel(nn.Module):
         
 
 # ResNet98
+# def resnet_student(output_dim=10):
+#     return ResNetStudent(BottleNeck, [6,8,12,6], num_classes=output_dim)
+
 def resnet_student(output_dim=10):
-    return ResNetStudent(BottleNeck, [6,8,12,6], num_classes=output_dim)
+    return ResNetStudent(BottleNeck, [4,6,9,4], num_classes=output_dim)
 
 # ResNet50
 def resnet_teacher(output_dim=10):
