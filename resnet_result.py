@@ -73,7 +73,7 @@ def main():
     plt.xticks(np.arange(0, 110, 10))
     plt.yticks(np.arange(0.55, 0.95, 0.05))
     plt.xlim(0, 101)
-    plt.ylim(0.60, 0.90)
+    plt.ylim(0.75, 0.90)
     
     plt.legend()
     plt.savefig('./result/resnet_result.png')

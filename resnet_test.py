@@ -40,14 +40,14 @@ def main():
         student = resnet_student().to(device)
         test_model = resnet_student().to(device)
         st = resnet_student().to(device)
-        sample = resnet_student().to(device)
+        # sample = resnet_student().to(device)
         proposed = resnet_student().to(device)
         
         teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth'))
         student.load_state_dict(torch.load('./logs/resnet/student/' + str(i) + '.pth'))
-        # test_model.load_state_dict(torch.load('./logs/resnet/cam/' + str(i) + '.pth'))
-        # st.load_state_dict(torch.load('./logs/resnet/st/' + str(i) + '.pth'))
-        sample.load_state_dict(torch.load('./logs/resnet/sample/' + str(i) + '.pth'))
+        test_model.load_state_dict(torch.load('./logs/resnet/cam/' + str(i) + '.pth'))
+        st.load_state_dict(torch.load('./logs/resnet/st/' + str(i) + '.pth'))
+        # sample.load_state_dict(torch.load('./logs/resnet/sample/' + str(i) + '.pth'))
         proposed.load_state_dict(torch.load('./logs/resnet/cam/10.pth'))
         
         loss_fn = nn.CrossEntropyLoss()
@@ -57,7 +57,7 @@ def main():
         student.eval()
         test_model.eval()
         st.eval()
-        sample.eval()
+        # sample.eval()
         proposed.eval()
         
         with torch.no_grad():           

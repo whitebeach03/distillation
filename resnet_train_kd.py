@@ -45,9 +45,9 @@ def main():
         test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
         
         teacher = resnet_teacher().to(device)
-        student = SampleModel().to(device)
+        student = resnet_student().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth')) # 変更箇所: str(i) -> str(0)
+        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth')) 
         loss_fn = nn.CrossEntropyLoss()
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         
@@ -81,7 +81,7 @@ def main():
                 images, labels = images.to(device), labels.to(device)
                 preds, _ = student(images)
                 targets, _ = teacher(images)
-                loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets)
+                loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
@@ -97,7 +97,7 @@ def main():
                     images, labels = images.to(device), labels.to(device)
                     preds, _ = student(images)
                     targets, _ = teacher(images)
-                    loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets)
+                    loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
                     val_loss += loss.item()
                     val_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
                 val_loss /= len(val_dataloader)
@@ -106,8 +106,7 @@ def main():
             if score <= val_acc:
                 print('save param')
                 score = val_acc
-                # torch.save(student.state_dict(), './logs/resnet/st/' + str(i) + '.pth') 
-                torch.save(student.state_dict(), './logs/resnet/distillation/' + str(i) + '.pth') 
+                torch.save(student.state_dict(), './logs/resnet/st/' + str(i) + '.pth') 
             
             student_hist['loss'].append(train_loss)
             student_hist['accuracy'].append(train_acc)
@@ -116,13 +115,10 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
             
-            # with open('./history/resnet/st/' + str(i) + '.pickle', mode='wb') as f:
-            #     pickle.dump(student_hist, f)
-            with open('./history/resnet/distillation/' + str(i) + '.pickle', mode='wb') as f:
+            with open('./history/resnet/st/' + str(i) + '.pickle', mode='wb') as f:
                 pickle.dump(student_hist, f)
 
-        # student.load_state_dict(torch.load('./logs/resnet/st/' + str(i) + '.pth'))
-        student.load_state_dict(torch.load('./logs/resnet/distillation/' + str(i) + '.pth'))
+        student.load_state_dict(torch.load('./logs/resnet/st/' + str(i) + '.pth'))
         test = {'acc': [], 'loss': []}
         # distillation student test
         student.eval()
@@ -141,10 +137,8 @@ def main():
 
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
-        # with open('./history/resnet/st/test' + str(i) + '.pickle', mode='wb') as f:
-        #     pickle.dump(test, f)
-        with open('./history/resnet/distillation/test' + str(i) + '.pickle', mode='wb') as f:
+        with open('./history/resnet/st/test' + str(i) + '.pickle', mode='wb') as f:
             pickle.dump(test, f)
-
+        
 if __name__ == '__main__':
     main()

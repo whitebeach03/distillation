@@ -14,7 +14,7 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(1):
+    for i in range(5):
         print(i+1)
         epochs = 50
         batch_size = 32
@@ -82,7 +82,7 @@ def main():
                 images, labels = images.to(device), labels.to(device)
                 preds = student(images)
                 targets = teacher(images)
-                loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets)
+                loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
                 optim.zero_grad()
                 loss.backward()
                 optim.step()

@@ -403,11 +403,8 @@ class SampleModel(nn.Module):
         
 
 # ResNet98
-# def resnet_student(output_dim=10):
-#     return ResNetStudent(BottleNeck, [6,8,12,6], num_classes=output_dim)
-
 def resnet_student(output_dim=10):
-    return ResNetStudent(BottleNeck, [4,6,9,4], num_classes=output_dim)
+    return ResNetStudent(BottleNeck, [6,8,12,6], num_classes=output_dim)
 
 # ResNet50
 def resnet_teacher(output_dim=10):
