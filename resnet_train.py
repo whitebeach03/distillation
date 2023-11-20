@@ -11,17 +11,19 @@ from src.utils import EarlyStopping
 import torch.optim as optimizers
 from sklearn.metrics import accuracy_score
 from src.kd_loss.st import SoftTargetLoss
+from src.utils import *
 import pickle
 
 def main():
-    for i in range(5):
+    for i in range(1):
         print(i)
-        model_size = 'student'
+        model_size = 'teacher'
         epochs = 100
         batch_size = 128
         torch.manual_seed(i)
         np.random.seed(i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        es = EarlyStopping(patience=5, verbose=1)
         
         data_dir = './data/cifar10'
         transform = transforms.Compose([transforms.ToTensor() ,transforms.Normalize(mean = [0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
@@ -92,7 +94,7 @@ def main():
             if score <= val_acc:
                 print('save param')
                 score = val_acc
-                torch.save(model.state_dict(), './logs/resnet/' + str(model_size) + '/' + str(i) + '.pth') ######## 
+                torch.save(model.state_dict(), './logs/resnet/' + str(model_size) + '/' + str(i) + '.pth') 
 
             history['loss'].append(train_loss)
             history['accuracy'].append(train_acc)
@@ -105,7 +107,7 @@ def main():
             pickle.dump(history, f)
 
         # model test
-        model.load_state_dict(torch.load('./logs/resnet/' + str(model_size) + '/' + str(i) + '.pth'))
+        model.load_state_dict(torch.load('./logs/resnet/' + str(model_size) + '/' + str(i) + '_param.pth'))
         model.eval()
         
         test = {'acc': [], 'loss': []}
