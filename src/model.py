@@ -287,7 +287,7 @@ class ResNetStudent(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         return x, self.cam
-    
+
 class ResNetAssistant(nn.Module):
     def __init__(self, block, num_block, num_classes=10, drop=0.3):
         super().__init__()
@@ -399,7 +399,7 @@ class SampleModel(nn.Module):
         x = self.gap(x)
         x = x.view(x.shape[0], -1)
         x = self.fc(x)
-        return x, self.attmap
+        return x, [self.attmap, self.fc.weight]
         
 
 # ResNet98

@@ -16,7 +16,7 @@ import pickle
 
 def main():
     for i in range(5):
-        cam_rate = '03'
+        cam_rate = '02'
         epochs = 100
         batch_size = 128
         np.random.seed(i)
@@ -142,19 +142,53 @@ def main():
         with open('./history/resnet/cam/' + str(cam_rate) + '_test' + str(i) + '.pickle', mode='wb') as f: # 変更箇所
             pickle.dump(test, f)
 
+# def create_student_cam(model, images, labels, features, batch_size, device):
+#     attmap = np.array([])
+#     for i in range(batch_size):
+#         image, label = images[i], labels[i]
+#         feature = features[i].to(device)
+        
+#         weight = model.fc.weight[label]
+#         weight = weight.reshape(512, 1, 1)
+#         cam = feature * weight  
+#         cam = cam.detach().cpu().numpy()
+#         cam = np.sum(cam, axis=0)
+    
+#         attmap = np.append(attmap, cam)
+#     attmap = torch.tensor(attmap)
+#     attmap = attmap.to(device)
+#     return attmap
+
+# def create_teacher_cam(model, images, labels, features, batch_size, device):
+#     attmap = np.array([])
+#     for i in range(batch_size):
+#         image, label = images[i], labels[i]
+#         feature = features[i].to(device)
+        
+#         weight = model.fc.weight[label]
+#         weight = weight.reshape(1024, 1, 1)
+#         cam = feature * weight  
+#         cam = cam.detach().cpu().numpy()
+#         cam = np.sum(cam, axis=0)
+    
+#         attmap = np.append(attmap, cam)
+#     attmap = torch.tensor(attmap)
+#     attmap = attmap.to(device)
+#     return attmap    
+
 def create_student_cam(model, images, labels, features, batch_size, device):
     attmap = np.array([])
     for i in range(batch_size):
-        image, label = images[i], labels[i]
-        feature = features[i].to(device)
+        image = images[i]
+        feature = features[i]
         
-        weight = model.fc.weight[label]
-        weight = weight.reshape(512, 1, 1)
-        cam = feature * weight  
-        cam = cam.detach().cpu().numpy()
-        cam = np.sum(cam, axis=0)
-    
-        attmap = np.append(attmap, cam)
+        for j in range(10):
+            weight = model.fc.weight[j]
+            weight = weight.reshape(512, 1, 1)
+            cam = feature * weight
+            cam = cam.detach().cpu().numpy()
+            cam = np.sum(cam, axis=0)    
+            attmap = np.append(attmap, cam)
     attmap = torch.tensor(attmap)
     attmap = attmap.to(device)
     return attmap
@@ -162,19 +196,20 @@ def create_student_cam(model, images, labels, features, batch_size, device):
 def create_teacher_cam(model, images, labels, features, batch_size, device):
     attmap = np.array([])
     for i in range(batch_size):
-        image, label = images[i], labels[i]
-        feature = features[i].to(device)
-        
-        weight = model.fc.weight[label]
-        weight = weight.reshape(1024, 1, 1)
-        cam = feature * weight  
-        cam = cam.detach().cpu().numpy()
-        cam = np.sum(cam, axis=0)
-    
-        attmap = np.append(attmap, cam)
+        image = images[i]
+        feature = features[i]
+   
+        for j in range(10):
+            weight = model.fc.weight[j]
+            weight = weight.reshape(1024, 1, 1)
+            cam = feature * weight
+            cam = cam.detach().cpu().numpy()
+            cam = np.sum(cam, axis=0)
+            attmap = np.append(attmap, cam)
     attmap = torch.tensor(attmap)
     attmap = attmap.to(device)
     return attmap
+    
 
 if __name__ == '__main__':
     main()
