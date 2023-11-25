@@ -2,21 +2,21 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-def main():
+def main():           
     # setting path
     student_path = './history/resnet/student/'
     teacher_path = './history/resnet/teacher/'
-    st_path = './history/resnet/st/'
-    cam01_path = './history/resnet/cam/01_'
-    cam02_path = './history/resnet/cam/02_'
+    # st_path = './history/resnet/st/'
+    # cam01_path = './history/resnet/cam/01_'
+    # cam02_path = './history/resnet/cam/02_'
     # cam03_path = './history/resnet/cam/03_'
     
     # loading history
     student_acc = load_hist(student_path, 5)
     teacher_acc = load_hist(teacher_path, 5)
-    st_acc = load_hist(st_path, 5)
-    cam01_acc = load_hist(cam01_path, 5)
-    cam02_acc = load_hist(cam02_path, 5)
+    # st_acc = load_hist(st_path, 1)
+    # cam01_acc = load_hist(cam01_path, 1)
+    # cam02_acc = load_hist(cam02_path, 1)
     # cam03_acc = load_hist(cam03_path, 5)
     
     # print test accuracy
@@ -24,24 +24,24 @@ def main():
     student_best = load_best_test(student_path, 5)   
     teacher_avg = load_avg_test(teacher_path, 5)
     teacher_best = load_best_test(teacher_path, 5)    
-    st_avg = load_avg_test(st_path, 5)
-    st_best = load_best_test(st_path, 5)    
-    cam01_avg = load_avg_test(cam01_path, 5)
-    cam01_best = load_best_test(cam01_path, 5) 
-    cam02_avg = load_avg_test(cam02_path, 5)
-    cam02_best = load_best_test(cam02_path, 5)
+    # st_avg = load_avg_test(st_path, 5)
+    # st_best = load_best_test(st_path, 5)    
+    # cam01_avg = load_avg_test(cam01_path, 5)
+    # cam01_best = load_best_test(cam01_path, 5) 
+    # cam02_avg = load_avg_test(cam02_path, 5)
+    # cam02_best = load_best_test(cam02_path, 5)
     # cam03_avg = load_avg_test(cam03_path, 5)
     # cam03_best = load_best_test(cam03_path, 5)
       
-    print('| Student             | avg: ' + str(student_avg) + ' | best: ' + str(student_best))
-    print('| Teacher             | avg: ' + str(teacher_avg) + ' | best: ' + str(teacher_best))
-    print('| Distillation        | avg: ' + str(st_avg)      + ' | best: ' + str(st_best))
-    print('| Proposed(rate=0.1)  | avg: ' + str(cam01_avg)   + ' | best: ' + str(cam01_best))
-    print('| Proposed(rate=0.2)  | avg: ' + str(cam02_avg)   + ' | best: ' + str(cam02_best))
-    # print('| Proposed(rate=0.3)  | avg: ' + str(cam03_avg)   + ' | best: ' + str(cam03_best))
+    print('| Student             | avg: ' + str(student_avg) + ' | best: ' + str(student_best) + ' |')
+    print('| Teacher             | avg: ' + str(teacher_avg) + ' | best: ' + str(teacher_best) + ' |')
+    # print('| Distillation        | avg: ' + str(st_avg)      + ' | best: ' + str(st_best) + ' |')
+    # print('| Proposed(rate=0.1)  | avg: ' + str(cam01_avg)   + ' | best: ' + str(cam01_best) + ' |')
+    # print('| Proposed(rate=0.2)  | avg: ' + str(cam02_avg)   + ' | best: ' + str(cam02_best) + ' |')
+    # print('| Proposed(rate=0.3)  | avg: ' + str(cam03_avg)   + ' | best: ' + str(cam03_best) + ' |')
     
     # plot result
-    x = np.arange(100)
+    x = np.arange(200)
     fig = plt.figure()
     fig.patch.set_facecolor('white')
     plt.xlabel('epoch')
@@ -49,15 +49,15 @@ def main():
     
     plt.plot(x, student_acc, label='Student',            linewidth=0.5, color='red')
     plt.plot(x, teacher_acc, label='Teacher',            linewidth=0.5, color='blue')
-    plt.plot(x, st_acc,      label='Distillation',       linewidth=0.5, color='orange')
-    plt.plot(x, cam01_acc,   label='Proposed(rate=0.1)', linewidth=0.5, color='green')
-    plt.plot(x, cam02_acc,   label='Proposed(rate=0.2)', linewidth=0.5, color='black')
+    # plt.plot(x, st_acc,      label='Distillation',       linewidth=0.5, color='orange')
+    # plt.plot(x, cam01_acc,   label='Proposed(rate=0.1)', linewidth=0.5, color='green')
+    # plt.plot(x, cam02_acc,   label='Proposed(rate=0.2)', linewidth=0.5, color='black')
     # plt.plot(x, cam03_acc,   label='Proposed(rate=0.3)', linewidth=0.5, color='brown')
     
-    plt.xticks(np.arange(0, 110, 10))
-    plt.yticks(np.arange(0.55, 0.95, 0.05))
-    plt.xlim(0, 101)
-    plt.ylim(0.75, 0.90)
+    plt.xticks(np.arange(0, 210, 20))
+    plt.yticks(np.arange(0, 0.95, 0.05))
+    plt.xlim(0, 201)
+    plt.ylim(0.70, 0.90)
     plt.legend()
     plt.savefig('./result/resnet_result.png')
 

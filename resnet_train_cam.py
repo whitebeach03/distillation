@@ -15,12 +15,12 @@ from src.kd_loss.cam_loss import CAMLoss
 import pickle
 
 def main():
-    for i in range(5):
-        cam_rate = '02'
-        epochs = 100
+    for i in range(3):
+        # cam_rate = '01'
+        epochs = 200
         batch_size = 128
-        np.random.seed(i)
-        torch.manual_seed(i)
+        np.random.seed(0)
+        torch.manual_seed(0)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         data_dir = './data/cifar10'
@@ -39,24 +39,24 @@ def main():
         teacher = resnet_teacher().to(device)
         student = resnet_student().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth')) # 変更
+        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(0) + '.pth')) # 変更箇所
         loss_fn = nn.CrossEntropyLoss() 
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         
         # teacher test
-        teacher.eval()
-        test_loss = 0.
-        test_acc = 0.
-        with torch.no_grad():
-            for (images,labels) in test_dataloader:
-                images, labels = images.to(device), labels.to(device)
-                preds, _ = teacher(images)
-                loss = loss_fn(preds, labels)
-                test_loss += loss.item()
-                test_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
-        test_loss /= len(test_dataloader)
-        test_acc /= len(test_dataloader)
-        print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
+        # teacher.eval()
+        # test_loss = 0.
+        # test_acc = 0.
+        # with torch.no_grad():
+        #     for (images,labels) in test_dataloader:
+        #         images, labels = images.to(device), labels.to(device)
+        #         preds, _ = teacher(images)
+        #         loss = loss_fn(preds, labels)
+        #         test_loss += loss.item()
+        #         test_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
+        # test_loss /= len(test_dataloader)
+        # test_acc /= len(test_dataloader)
+        # print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
         
         # train
         optim = optimizers.Adam(student.parameters())
@@ -74,16 +74,29 @@ def main():
                 images, labels = images.to(device), labels.to(device)
                 preds, student_features = student(images)
                 targets, teacher_features = teacher(images)
-        
-                student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
-                teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
                 
-                if cam_rate == '01':
+                if i == 0:   # Distillation
+                    loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
+                elif i == 1: # CAM-Distillation(rate=0.1)
+                    student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
+                    teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
                     loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
-                elif cam_rate == '02':
+                elif i == 2: # CAM-Distillation(rate=0.2)
+                    student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
+                    teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
                     loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*cam_loss(student_cam, teacher_cam)
-                elif cam_rate == '03':
-                    loss = 0.5*loss_fn(preds, labels) + 0.2*T*T*soft_loss(preds, targets) + 0.3*cam_loss(student_cam, teacher_cam)
+                
+                
+                # if cam_rate == '01':
+                #     loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
+                # elif cam_rate == '02':
+                #     loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*cam_loss(student_cam, teacher_cam)
+                # elif cam_rate == '03':
+                #     loss = 0.5*loss_fn(preds, labels) + 0.2*T*T*soft_loss(preds, targets) + 0.3*cam_loss(student_cam, teacher_cam)
+                # elif cam_rate == '04':
+                #     loss = 0.5*loss_fn(preds, labels) + 0.1*T*T*soft_loss(preds, targets) + 0.4*cam_loss(student_cam, teacher_cam)
+                # elif cam_rate == '05':
+                #     loss = 0.5*loss_fn(preds, labels) + 0.5*cam_loss(student_cam, teacher_cam)
                 
                 optim.zero_grad()
                 loss.backward()
@@ -96,11 +109,11 @@ def main():
             # student validation
             student.eval()
             with torch.no_grad():
-                for (images,labels) in val_dataloader:
-                    images,labels = images.to(device), labels.to(device)
+                for (images, labels) in val_dataloader:
+                    images, labels = images.to(device), labels.to(device)
                     preds, _ = student(images)
                     targets, _ = teacher(images)
-                    loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets)
+                    loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
                     val_loss += loss.item()
                     val_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
                 val_loss /= len(val_dataloader)
@@ -109,7 +122,14 @@ def main():
             if score <= val_acc:
                 print('save param')
                 score = val_acc
-                torch.save(student.state_dict(), './logs/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pth') # 変更箇所
+                if i == 0:
+                    torch.save(student.state_dict(), './logs/resnet/st/0.pth') 
+                elif i == 1:
+                    torch.save(student.state_dict(), './logs/resnet/cam/01_0.pth') 
+                elif i == 2:
+                    torch.save(student.state_dict(), './logs/resnet/cam/02_0.pth') 
+                    
+                # torch.save(student.state_dict(), './logs/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pth') 
             
             student_hist['loss'].append(train_loss)
             student_hist['accuracy'].append(train_acc)
@@ -118,10 +138,26 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
             
-            with open('./history/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pickle', mode='wb') as f: # 変更箇所
-                pickle.dump(student_hist, f)
+            if i == 0:
+                with open('./history/resnet/st/0.pickle', mode='wb') as f: 
+                    pickle.dump(student_hist, f)
+            elif i == 1:
+                with open('./history/resnet/cam/01_0.pickle', mode='wb') as f: 
+                    pickle.dump(student_hist, f)
+            elif i == 2:
+                with open('./history/resnet/cam/02_0.pickle', mode='wb') as f: 
+                    pickle.dump(student_hist, f)
+                    
+            # with open('./history/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pickle', mode='wb') as f: 
+            #     pickle.dump(student_hist, f)
         
-        student.load_state_dict(torch.load('./logs/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pth')) # 変更箇所
+        # student.load_state_dict(torch.load('./logs/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pth')) 
+        if i == 0:
+            student.load_state_dict(torch.load('./logs/resnet/st/0.pth')) 
+        elif i == 1:
+            student.load_state_dict(torch.load('./logs/resnet/cam/01_0.pth')) 
+        elif i == 2:
+            student.load_state_dict(torch.load('./logs/resnet/cam/02_0.pth')) 
         test = {'acc': [], 'loss': []}
         # distillation student test
         student.eval()
@@ -139,8 +175,18 @@ def main():
         print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
-        with open('./history/resnet/cam/' + str(cam_rate) + '_test' + str(i) + '.pickle', mode='wb') as f: # 変更箇所
-            pickle.dump(test, f)
+        
+        # with open('./history/resnet/cam/' + str(cam_rate) + '_test' + str(i) + '.pickle', mode='wb') as f: # 変更箇所
+        #     pickle.dump(test, f)
+        if i == 0:
+            with open('./history/resnet/st/test0.pickle', mode='wb') as f: 
+                pickle.dump(test, f)
+        elif i == 1:
+            with open('./history/resnet/cam/01_test0.pickle', mode='wb') as f: 
+                pickle.dump(test, f)
+        elif i == 2:
+            with open('./history/resnet/cam/02_test0.pickle', mode='wb') as f:
+                pickle.dump(test, f)
 
 # def create_student_cam(model, images, labels, features, batch_size, device):
 #     attmap = np.array([])

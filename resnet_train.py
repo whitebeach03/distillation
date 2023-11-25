@@ -18,7 +18,7 @@ def main():
     for i in range(1):
         print(i)
         model_size = 'teacher'
-        epochs = 100
+        epochs = 200
         batch_size = 128
         torch.manual_seed(i)
         np.random.seed(i)
@@ -43,8 +43,6 @@ def main():
             model = resnet_teacher().to(device)
         elif model_size == 'student':
             model = resnet_student().to(device)
-        elif model_size == 'cnn':
-            model = SampleModel().to(device)
 
         optim = optimizers.Adam(model.parameters())
         loss_fn = nn.CrossEntropyLoss()
@@ -107,7 +105,7 @@ def main():
             pickle.dump(history, f)
 
         # model test
-        model.load_state_dict(torch.load('./logs/resnet/' + str(model_size) + '/' + str(i) + '_param.pth'))
+        model.load_state_dict(torch.load('./logs/resnet/' + str(model_size) + '/' + str(i) + '.pth'))
         model.eval()
         
         test = {'acc': [], 'loss': []}

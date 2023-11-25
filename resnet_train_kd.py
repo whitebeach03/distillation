@@ -14,9 +14,9 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(5):
+    for i in range(1):
         print(i)
-        epochs = 100
+        epochs = 200
         batch_size = 128
         np.random.seed(i)
         torch.manual_seed(i)
@@ -30,15 +30,6 @@ def main():
         n_train = int(n_samples * 0.8)
         n_val = n_samples - n_train
         trainset, valset = random_split(trainset, [n_train, n_val])
-        
-        # data_dir = './data/covid19'
-        # transform = transforms.Compose([transforms.Resize(224), transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
-        # dataset = datasets.ImageFolder(root=data_dir, transform=transform)
-        # n_samples = len(dataset)
-        # n_val = int(n_samples * 0.2)
-        # n_test = n_val
-        # n_train = n_samples - n_val - n_test
-        # trainset, valset, testset = random_split(dataset, [n_train, n_val, n_test])
         
         train_dataloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=8)
         val_dataloader = DataLoader(valset, batch_size=batch_size, shuffle=False)
