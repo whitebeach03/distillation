@@ -22,7 +22,7 @@ def main():
     teacher_cam02_loss = 0
     teacher_cam03_loss = 0
     
-    iteration = 5
+    iteration = 1
     
     for i in range(iteration):
         print(i)
@@ -95,7 +95,7 @@ def main():
                     # 4. 教師と提案法(cam_rate=0.2)のLoss
                     teacher_cam02_loss   += cam_loss(teacher_cam, cam02_cam)
                     # 5. 教師と提案法(cam_rate=0.3)のLoss
-                    teacher_cam03_loss   += cam_loss(teacher_cam, cam03_cam)
+                    # teacher_cam03_loss   += cam_loss(teacher_cam, cam03_cam)
             
     teacher_student_loss /= iteration
     teacher_st_loss /= iteration

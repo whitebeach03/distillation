@@ -1,24 +1,23 @@
 from tqdm import tqdm
 import os
+import cv2
 import numpy as np
 import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision import datasets
 from torch.utils.data import random_split, DataLoader
-from src.model import TeacherModel, StudentModel, TModel, Model
-from src.utils import EarlyStopping
+from src.model import resnet_student, resnet_teacher
 import torch.optim as optimizers
 from sklearn.metrics import accuracy_score
 from src.kd_loss.st import SoftTargetLoss
 from src.kd_loss.cam_loss import CAMLoss
 import pickle
-from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
-from pytorch_grad_cam import GradCAM
 
 def main():
     for i in range(1):
-        epochs = 100
+        cam_rate = '05' # default: '02'
+        epochs = 200
         batch_size = 128
         np.random.seed(i)
         torch.manual_seed(i)
@@ -33,49 +32,38 @@ def main():
         n_val = n_samples - n_train
         trainset, valset = random_split(trainset, [n_train, n_val])
         
-        # data_dir = './data/covid19'
-        # transform = transforms.Compose([transforms.Resize(224), transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
-        # dataset = datasets.ImageFolder(root=data_dir, transform=transform)
-        # n_samples = len(dataset)
-        # n_val = int(n_samples * 0.2)
-        # n_test = n_val
-        # n_train = n_samples - n_val - n_test
-        # trainset, valset, testset = random_split(dataset, [n_train, n_val, n_test])
-        
         train_dataloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=8)
         val_dataloader = DataLoader(valset, batch_size=batch_size, shuffle=False)
         test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
         
-        teacher = TeacherModel().to(device)
-        student = StudentModel().to(device)
+        teacher = resnet_teacher().to(device)
+        student = resnet_student().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/teacher/' + str(i) + '.pth'))
+        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth')) # 変更箇所
         loss_fn = nn.CrossEntropyLoss() 
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         
         # teacher test
-        teacher.eval()
-        test_loss = 0.
-        test_acc = 0.
-        with torch.no_grad():
-            for (images,labels) in test_dataloader:
-                images, labels = images.to(device), labels.to(device)
-                preds = teacher(images)
-                loss = loss_fn(preds, labels)
-                test_loss += loss.item()
-                test_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
-        test_loss /= len(test_dataloader)
-        test_acc /= len(test_dataloader)
-        print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
-        # test_loss: 0.662, test_accuracy: 0.819
+        # teacher.eval()
+        # test_loss = 0.
+        # test_acc = 0.
+        # with torch.no_grad():
+        #     for (images,labels) in test_dataloader:
+        #         images, labels = images.to(device), labels.to(device)
+        #         preds, _ = teacher(images)
+        #         loss = loss_fn(preds, labels)
+        #         test_loss += loss.item()
+        #         test_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
+        # test_loss /= len(test_dataloader)
+        # test_acc /= len(test_dataloader)
+        # print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
         
         # train
         optim = optimizers.Adam(student.parameters())
-        T = 10 # 温度パラメータ
+        T = 10 
         score = 0.
-        soft_loss = SoftTargetLoss() # ソフトターゲット
-        cam_loss = nn.MSELoss() # CAMターゲット
-        # cam_loss = CAMLoss()
+        soft_loss = SoftTargetLoss() # Soft Loss
+        cam_loss = nn.MSELoss() # CAM Loss
         for epoch in range(epochs):
             train_loss = 0.
             train_acc = 0.
@@ -84,17 +72,23 @@ def main():
             student.train()
             for cnt, (images, labels) in enumerate(tqdm(train_dataloader, leave=False)):
                 images, labels = images.to(device), labels.to(device)
-                preds = student(images)
-                targets = teacher(images)
-        
-                student_cam = cam(student, images, labels, batch_size, device)
-                teacher_cam = cam(teacher, images, labels, batch_size, device)
-                student_cam = torch.tensor(student_cam, requires_grad=True)
-                teacher_cam = torch.tensor(teacher_cam, requires_grad=True)
-
-                # loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets) + cam_loss(student_cam, teacher_cam)
-                loss = cam_loss(student_cam, teacher_cam)
-                    
+                preds, student_features = student(images)
+                targets, teacher_features = teacher(images)
+                
+                student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
+                teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
+                
+                if cam_rate == '01':
+                    loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
+                elif cam_rate == '02': 
+                    loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*cam_loss(student_cam, teacher_cam)
+                elif cam_rate == '03':
+                    loss = 0.5*loss_fn(preds, labels) + 0.2*T*T*soft_loss(preds, targets) + 0.3*cam_loss(student_cam, teacher_cam)
+                elif cam_rate == '04':
+                    loss = 0.5*loss_fn(preds, labels) + 0.1*T*T*soft_loss(preds, targets) + 0.4*cam_loss(student_cam, teacher_cam)
+                elif cam_rate == '05':
+                    loss = 0.5*loss_fn(preds, labels) + 0.5*cam_loss(student_cam, teacher_cam)
+                
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
@@ -106,21 +100,20 @@ def main():
             # student validation
             student.eval()
             with torch.no_grad():
-                for (images,labels) in val_dataloader:
-                    images,labels = images.to(device),labels.to(device)
-                    preds = student(images)
-                    targets= teacher(images)
-                    # loss = loss_fn(preds, labels) + T*T*soft_loss(preds, targets)
-                    loss = cam_loss(student_cam, teacher_cam)
+                for (images, labels) in val_dataloader:
+                    images, labels = images.to(device), labels.to(device)
+                    preds, _ = student(images)
+                    targets, _ = teacher(images)
+                    loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
                     val_loss += loss.item()
                     val_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
                 val_loss /= len(val_dataloader)
                 val_acc /= len(val_dataloader)
                 
             if score <= val_acc:
-                print('test')
+                print('save param')
                 score = val_acc
-                torch.save(student.state_dict(), './logs/student_cam/cam' + str(i) + '.pth') 
+                torch.save(student.state_dict(), './logs/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pth') 
             
             student_hist['loss'].append(train_loss)
             student_hist['accuracy'].append(train_acc)
@@ -129,10 +122,10 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
             
-            with open('./history/student_cam/cam' + str(i) + '.pickle', mode='wb') as f:
+            with open('./history/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pickle', mode='wb') as f: 
                 pickle.dump(student_hist, f)
         
-        student.load_state_dict(torch.load('./logs/student_cam/cam' + str(i) + '.pth'))
+        student.load_state_dict(torch.load('./logs/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pth')) 
         test = {'acc': [], 'loss': []}
         # distillation student test
         student.eval()
@@ -141,7 +134,7 @@ def main():
         with torch.no_grad():
             for (images,labels) in test_dataloader:
                 images, labels = images.to(device), labels.to(device)
-                preds = student(images)
+                preds, _ = student(images)
                 loss = loss_fn(preds, labels)
                 test_loss += loss.item()
                 test_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
@@ -150,25 +143,78 @@ def main():
         print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
-        with open('./history/student_cam/testcam' + str(i) + '.pickle', mode='wb') as f:
+        
+        with open('./history/resnet/cam/' + str(cam_rate) + '_test' + str(i) + '.pickle', mode='wb') as f: # 変更箇所
             pickle.dump(test, f)
 
-def cam(model, images, labels, batch_size, device):
-    model.eval()
-    target_layers = [model.layer4]
-    cam = GradCAM(model=model, target_layers=target_layers, use_cuda=torch.cuda.is_available())
-    cams = np.array([])
-    
+def create_student_cam(model, images, labels, features, batch_size, device):
+    attmap = np.array([])
     for i in range(batch_size):
         image = images[i]
-        label = labels[i]
-        grayscale_cam = cam(input_tensor=image.unsqueeze(0), targets=[ClassifierOutputTarget(label)])
-        grayscale_cam = grayscale_cam[0, :]
-        # cams = np.append(cams, grayscale_cam).reshape(i+1, 32, 32)  ### 確認
-        cams = np.append(cams, grayscale_cam)
+        feature = features[i]
+        
+        for j in range(10):
+            weight = model.fc.weight[j]
+            weight = weight.reshape(512, 1, 1)
+            cam = feature * weight
+            cam = cam.detach().cpu().numpy()
+            cam = np.sum(cam, axis=0)    
+            attmap = np.append(attmap, cam)
+    attmap = torch.tensor(attmap)
+    attmap = attmap.to(device)
+    return attmap
+
+def create_teacher_cam(model, images, labels, features, batch_size, device):
+    attmap = np.array([])
+    for i in range(batch_size):
+        image = images[i]
+        feature = features[i]
+   
+        for j in range(10):
+            weight = model.fc.weight[j]
+            weight = weight.reshape(1024, 1, 1)
+            cam = feature * weight
+            cam = cam.detach().cpu().numpy()
+            cam = np.sum(cam, axis=0)
+            attmap = np.append(attmap, cam)
+    attmap = torch.tensor(attmap)
+    attmap = attmap.to(device)
+    return attmap
+
+# def create_student_cam(model, images, labels, features, batch_size, device):
+#     attmap = np.array([])
+#     for i in range(batch_size):
+#         image, label = images[i], labels[i]
+#         feature = features[i].to(device)
+        
+#         weight = model.fc.weight[label]
+#         weight = weight.reshape(512, 1, 1)
+#         cam = feature * weight  
+#         cam = cam.detach().cpu().numpy()
+#         cam = np.sum(cam, axis=0)
     
-    # cams = torch.tensor(cams)
-    return cams
+#         attmap = np.append(attmap, cam)
+#     attmap = torch.tensor(attmap)
+#     attmap = attmap.to(device)
+#     return attmap
+
+# def create_teacher_cam(model, images, labels, features, batch_size, device):
+#     attmap = np.array([])
+#     for i in range(batch_size):
+#         image, label = images[i], labels[i]
+#         feature = features[i].to(device)
+        
+#         weight = model.fc.weight[label]
+#         weight = weight.reshape(1024, 1, 1)
+#         cam = feature * weight  
+#         cam = cam.detach().cpu().numpy()
+#         cam = np.sum(cam, axis=0)
+    
+#         attmap = np.append(attmap, cam)
+#     attmap = torch.tensor(attmap)
+#     attmap = attmap.to(device)
+#     return attmap    
+    
 
 if __name__ == '__main__':
     main()

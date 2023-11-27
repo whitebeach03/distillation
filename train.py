@@ -6,22 +6,24 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision import datasets
 from torch.utils.data import random_split, DataLoader
-from src.model import TeacherModel, StudentModel
+from src.model import resnet_student, resnet_teacher, SampleModel
 from src.utils import EarlyStopping
 import torch.optim as optimizers
 from sklearn.metrics import accuracy_score
 from src.kd_loss.st import SoftTargetLoss
+from src.utils import *
 import pickle
 
 def main():
     for i in range(1):
         print(i)
         model_size = 'teacher'
-        epochs = 100
+        epochs = 200
         batch_size = 128
         torch.manual_seed(i)
         np.random.seed(i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        es = EarlyStopping(patience=5, verbose=1)
         
         data_dir = './data/cifar10'
         transform = transforms.Compose([transforms.ToTensor() ,transforms.Normalize(mean = [0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
@@ -32,25 +34,16 @@ def main():
         n_val = n_samples - n_train
         trainset, valset = random_split(trainset, [n_train, n_val])
         
-        # data_dir = './data/covid19'
-        # transform = transforms.Compose([transforms.Resize(224), transforms.ToTensor(), transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])])
-        # dataset = datasets.ImageFolder(root=data_dir, transform=transform)
-        # n_samples = len(dataset)
-        # n_val = int(n_samples * 0.2)
-        # n_test = n_val
-        # n_train = n_samples - n_val - n_test
-        # trainset, valset, testset = random_split(dataset, [n_train, n_val, n_test])
-        
         train_dataloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers=8)
         val_dataloader = DataLoader(valset, batch_size=batch_size, shuffle=False)
         test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
         
         # setting model
         if model_size == 'teacher':
-            model = TeacherModel().to(device)
+            model = resnet_teacher().to(device)
         elif model_size == 'student':
-            model = StudentModel().to(device)
-            
+            model = resnet_student().to(device)
+
         optim = optimizers.Adam(model.parameters())
         loss_fn = nn.CrossEntropyLoss()
         score = 0.
@@ -67,7 +60,7 @@ def main():
             for (images, labels) in tqdm(train_dataloader, leave=False):
                 images, labels = images.to(device), labels.to(device)
                 
-                preds = model(images)
+                preds, _ = model(images)
                 loss = loss_fn(preds,labels)
                 
                 optim.zero_grad()
@@ -84,9 +77,9 @@ def main():
             model.eval()
             with torch.no_grad():
                 for (images, labels) in val_dataloader:
-                    images, labels = images.to(device), labels.to(device)
+                    images,labels = images.to(device), labels.to(device)
                     
-                    preds = model(images)
+                    preds, _ = model(images)
                     loss = loss_fn(preds, labels)
                     
                     val_loss += loss.item()
@@ -99,7 +92,7 @@ def main():
             if score <= val_acc:
                 print('save param')
                 score = val_acc
-                torch.save(model.state_dict(), './logs/' + str(model_size) + '/' + str(i) + '.pth') 
+                torch.save(model.state_dict(), './logs/resnet/' + str(model_size) + '/' + str(i) + '.pth') 
 
             history['loss'].append(train_loss)
             history['accuracy'].append(train_acc)
@@ -108,11 +101,11 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
         
-        with open('./history/' + str(model_size) + '/' + str(i) + '.pickle', mode='wb') as f: 
+        with open('./history/resnet/' + str(model_size) + '/' + str(i) + '.pickle', mode='wb') as f: #########
             pickle.dump(history, f)
 
         # model test
-        model.load_state_dict(torch.load('./logs/' + str(model_size) + '/' + str(i) + '.pth'))
+        model.load_state_dict(torch.load('./logs/resnet/' + str(model_size) + '/' + str(i) + '.pth'))
         model.eval()
         
         test = {'acc': [], 'loss': []}
@@ -122,7 +115,7 @@ def main():
             for (images,labels) in test_dataloader:
                 images, labels = images.to(device), labels.to(device)
                 
-                preds = model(images)
+                preds, _ = model(images)
                 loss = loss_fn(preds, labels)
                 
                 test_loss += loss.item()
@@ -131,12 +124,13 @@ def main():
         test_loss /= len(test_dataloader)
         test_acc /= len(test_dataloader)
         print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
-        # test_loss: 0.905, test_accuracy: 0.781
+
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
         
-        with open('./history/' + str(model_size) + '/' + 'test' + str(i) + '.pickle', mode='wb') as f: 
+        with open('./history/resnet/' + str(model_size) + '/' + 'test' + str(i) + '.pickle', mode='wb') as f: 
             pickle.dump(test, f)
+        
     
 if __name__ == '__main__':
     main()
