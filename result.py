@@ -13,17 +13,17 @@ def main():
     
     # loading history
     student_acc = load_hist(student_path, 1)
-    teacher_acc = load_hist(teacher_path, 1)
+    teacher_acc = load_hist(teacher_path, 5)
     st_acc = load_hist(st_path, 1)
     cam01_acc = load_hist(cam01_path, 1)
     cam02_acc = load_hist(cam02_path, 1)
-    cam03_acc = load_hist(cam05_path, 1)
+    cam05_acc = load_hist(cam05_path, 1)
     
     # print test accuracy
     student_avg = load_avg_test(student_path, 1)
     student_best = load_best_test(student_path, 1)   
-    teacher_avg = load_avg_test(teacher_path, 1)
-    teacher_best = load_best_test(teacher_path, 1)    
+    teacher_avg = load_avg_test(teacher_path, 5)
+    teacher_best = load_best_test(teacher_path, 5)    
     st_avg = load_avg_test(st_path, 1)
     st_best = load_best_test(st_path, 1)    
     cam01_avg = load_avg_test(cam01_path, 1)
@@ -52,7 +52,7 @@ def main():
     plt.plot(x, st_acc,      label='Distillation',       linewidth=0.5, color='orange')
     plt.plot(x, cam01_acc,   label='Proposed(rate=0.1)', linewidth=0.5, color='green')
     plt.plot(x, cam02_acc,   label='Proposed(rate=0.2)', linewidth=0.5, color='black')
-    plt.plot(x, cam03_acc,   label='Proposed(rate=0.3)', linewidth=0.5, color='brown')
+    plt.plot(x, cam05_acc,   label='Proposed(rate=0.3)', linewidth=0.5, color='brown')
     
     plt.xticks(np.arange(0, 210, 20))
     plt.yticks(np.arange(0, 0.95, 0.05))
