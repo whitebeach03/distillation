@@ -48,7 +48,7 @@ def main():
         st.load_state_dict(torch.load('./logs/resnet/st/' + str(i) + '.pth'))
         cam01.load_state_dict(torch.load('./logs/resnet/cam/01_' + str(i) + '.pth'))
         cam02.load_state_dict(torch.load('./logs/resnet/cam/02_' + str(i) + '.pth'))
-        cam03.load_state_dict(torch.load('./logs/resnet/cam/03_' + str(i) + '.pth'))
+        cam03.load_state_dict(torch.load('./logs/resnet/cam/000_' + str(i) + '.pth'))
         
         loss_fn = nn.CrossEntropyLoss()
         cam_loss = nn.MSELoss()

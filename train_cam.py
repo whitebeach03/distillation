@@ -16,7 +16,7 @@ import pickle
 
 def main():
     for i in range(1):
-        cam_rate = '05' # default: '02'
+        cam_rate = '000' # default: '02', CAM-curriculum: '00', '000'
         epochs = 200
         batch_size = 128
         np.random.seed(i)
@@ -42,21 +42,6 @@ def main():
         teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth')) # 変更箇所
         loss_fn = nn.CrossEntropyLoss() 
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
-        
-        # teacher test
-        # teacher.eval()
-        # test_loss = 0.
-        # test_acc = 0.
-        # with torch.no_grad():
-        #     for (images,labels) in test_dataloader:
-        #         images, labels = images.to(device), labels.to(device)
-        #         preds, _ = teacher(images)
-        #         loss = loss_fn(preds, labels)
-        #         test_loss += loss.item()
-        #         test_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
-        # test_loss /= len(test_dataloader)
-        # test_acc /= len(test_dataloader)
-        # print(f'test_loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}')
         
         # train
         optim = optimizers.Adam(student.parameters())
@@ -88,6 +73,20 @@ def main():
                     loss = 0.5*loss_fn(preds, labels) + 0.1*T*T*soft_loss(preds, targets) + 0.4*cam_loss(student_cam, teacher_cam)
                 elif cam_rate == '05':
                     loss = 0.5*loss_fn(preds, labels) + 0.5*cam_loss(student_cam, teacher_cam)
+                # CAM Curriculum learning     
+                # elif cam_rate == '00':
+                #     if epoch <= 50:
+                #         loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*cam_loss(student_cam, teacher_cam)
+                #     elif 50 < epoch and epoch <= 100:
+                #         loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
+                #     elif 100 < epoch:
+                #         loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
+                elif cam_rate == '000':
+                    if epoch <= 100:
+                        loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*cam_loss(student_cam, teacher_cam)
+                    elif 100 < epoch:
+                        loss = loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
+                
                 
                 optim.zero_grad()
                 loss.backward()

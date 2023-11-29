@@ -15,7 +15,7 @@ from src.utils import *
 import pickle
 
 def main():
-    for i in range(1, 5):
+    for i in range(1):
         print(i)
         model_size = 'teacher'
         epochs = 200

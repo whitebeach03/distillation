@@ -9,7 +9,7 @@ def main():
     st_path = './history/resnet/st/'
     cam01_path = './history/resnet/cam/01_'
     cam02_path = './history/resnet/cam/02_'
-    cam05_path = './history/resnet/cam/05_'
+    cam000_path = './history/resnet/cam/000_'
     
     # loading history
     student_acc = load_hist(student_path, 1)
@@ -17,7 +17,7 @@ def main():
     st_acc = load_hist(st_path, 1)
     cam01_acc = load_hist(cam01_path, 1)
     cam02_acc = load_hist(cam02_path, 1)
-    cam05_acc = load_hist(cam05_path, 1)
+    cam000_acc = load_hist(cam000_path, 1)
     
     # print test accuracy
     student_avg = load_avg_test(student_path, 1)
@@ -30,15 +30,15 @@ def main():
     cam01_best = load_best_test(cam01_path, 1) 
     cam02_avg = load_avg_test(cam02_path, 1)
     cam02_best = load_best_test(cam02_path, 1)
-    cam05_avg = load_avg_test(cam05_path, 1)
-    cam05_best = load_best_test(cam05_path, 1)
+    cam000_avg = load_avg_test(cam000_path, 1)
+    cam000_best = load_best_test(cam000_path, 1)
       
-    print('| Student             | avg: ' + str(student_avg) + ' | best: ' + str(student_best) + ' |')
-    print('| Teacher             | avg: ' + str(teacher_avg) + ' | best: ' + str(teacher_best) + ' |')
-    print('| Distillation        | avg: ' + str(st_avg)      + ' | best: ' + str(st_best) + ' |')
-    print('| Proposed(rate=0.1)  | avg: ' + str(cam01_avg)   + ' | best: ' + str(cam01_best) + ' |')
-    print('| Proposed(rate=0.2)  | avg: ' + str(cam02_avg)   + ' | best: ' + str(cam02_best) + ' |')
-    print('| Proposed(rate=0.5)  | avg: ' + str(cam05_avg)   + ' | best: ' + str(cam05_best) + ' |')
+    print('| Student                  | avg: ' + str(student_avg)  + ' | best: ' + str(student_best) + ' |')
+    print('| Teacher                  | avg: ' + str(teacher_avg)  + ' | best: ' + str(teacher_best) + ' |')
+    print('| Distillation             | avg: ' + str(st_avg)       + ' | best: ' + str(st_best)      + ' |')
+    print('| Proposed(rate=0.1)       | avg: ' + str(cam01_avg)    + ' | best: ' + str(cam01_best)   + ' |')
+    print('| Proposed(rate=0.2)       | avg: ' + str(cam02_avg)    + ' | best: ' + str(cam02_best)   + ' |')
+    print('| Proposed(rate=0.2->0.0)  | avg: ' + str(cam000_avg)   + ' | best: ' + str(cam000_best)  + ' |')
     
     # plot result
     x = np.arange(200)
@@ -47,17 +47,17 @@ def main():
     plt.xlabel('epoch')
     plt.ylabel('validation accuracy')
     
-    plt.plot(x, student_acc, label='Student',            linewidth=0.5, color='red')
-    plt.plot(x, teacher_acc, label='Teacher',            linewidth=0.5, color='blue')
-    plt.plot(x, st_acc,      label='Distillation',       linewidth=0.5, color='orange')
-    plt.plot(x, cam01_acc,   label='Proposed(rate=0.1)', linewidth=0.5, color='green')
-    plt.plot(x, cam02_acc,   label='Proposed(rate=0.2)', linewidth=0.5, color='black')
-    plt.plot(x, cam05_acc,   label='Proposed(rate=0.3)', linewidth=0.5, color='brown')
+    # plt.plot(x, student_acc, label='Student',            linewidth=0.5, color='red')
+    # plt.plot(x, teacher_acc, label='Teacher',            linewidth=0.5, color='blue')
+    plt.plot(x, st_acc,       label='Distillation',          linewidth=0.5, color='orange')
+    # plt.plot(x, cam01_acc,   label='Proposed(rate=0.1)', linewidth=0.5, color='green')
+    plt.plot(x, cam02_acc,    label='Proposed(rate=0.2)',    linewidth=0.5, color='black')
+    plt.plot(x, cam000_acc,   label='Proposed(rate=02->00)', linewidth=0.5, color='brown')
     
     plt.xticks(np.arange(0, 210, 20))
     plt.yticks(np.arange(0, 0.95, 0.05))
     plt.xlim(0, 201)
-    plt.ylim(0.70, 0.90)
+    plt.ylim(0.75, 0.90)
     plt.legend()
     plt.savefig('./result/resnet_result.png')
 
