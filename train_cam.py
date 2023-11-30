@@ -15,7 +15,7 @@ from src.kd_loss.cam_loss import CAMLoss
 import pickle
 
 def main():
-    for i in range(1, 3):
+    for i in range(1):
         print(i)
         cam_rate = '02' # default: '02', CAM-curriculum: '00', '000'
         epochs = 200
@@ -151,7 +151,7 @@ def main():
             pickle.dump(test, f)
 
 def create_student_cam(model, images, labels, features, batch_size, device):
-    attmap = np.array([])
+    attmap = torch.tensor([]).to(device)
     for i in range(batch_size):
         image = images[i]
         feature = features[i]
@@ -160,15 +160,12 @@ def create_student_cam(model, images, labels, features, batch_size, device):
             weight = model.fc.weight[j]
             weight = weight.reshape(512, 1, 1)
             cam = feature * weight
-            cam = cam.detach().cpu().numpy()
-            cam = np.sum(cam, axis=0)    
-            attmap = np.append(attmap, cam)
-    attmap = torch.tensor(attmap)
-    attmap = attmap.to(device)
+            cam = torch.sum(cam, axis=0)    
+            attmap = torch.cat((attmap, cam), dim=0)
     return attmap
 
 def create_teacher_cam(model, images, labels, features, batch_size, device):
-    attmap = np.array([])
+    attmap = torch.tensor([]).to(device)
     for i in range(batch_size):
         image = images[i]
         feature = features[i]
@@ -177,11 +174,8 @@ def create_teacher_cam(model, images, labels, features, batch_size, device):
             weight = model.fc.weight[j]
             weight = weight.reshape(1024, 1, 1)
             cam = feature * weight
-            cam = cam.detach().cpu().numpy()
-            cam = np.sum(cam, axis=0)
-            attmap = np.append(attmap, cam)
-    attmap = torch.tensor(attmap)
-    attmap = attmap.to(device)
+            cam = torch.sum(cam, axis=0)
+            attmap = torch.cat((attmap, cam), dim=0)
     return attmap
 
 # def create_student_cam(model, images, labels, features, batch_size, device):

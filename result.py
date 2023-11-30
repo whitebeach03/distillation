@@ -17,8 +17,8 @@ def main():
     teacher_acc = load_hist(teacher_path, 5)
     st_acc = load_hist(st_path, 3)
     cam01_acc = load_hist(cam01_path, 1)
-    cam02_acc = load_hist(cam02_path, 3)
-    cam000_acc = load_hist(cam000_path, 3)
+    cam02_acc = load_hist(cam02_path, 1)
+    cam000_acc = load_hist(cam000_path, 1)
     # cam00_acc = load_hist(cam00_path, 1)
     
     # print test accuracy
@@ -30,8 +30,8 @@ def main():
     st_best = load_best_test(st_path, 3)    
     cam01_avg = load_avg_test(cam01_path, 1)
     cam01_best = load_best_test(cam01_path, 1) 
-    cam02_avg = load_avg_test(cam02_path, 3)
-    cam02_best = load_best_test(cam02_path, 3)
+    cam02_avg = load_avg_test(cam02_path, 1)
+    cam02_best = load_best_test(cam02_path, 1)
     cam000_avg = load_avg_test(cam000_path, 3)
     cam000_best = load_best_test(cam000_path, 3)
     # cam00_avg = load_avg_test(cam00_path, 1)
