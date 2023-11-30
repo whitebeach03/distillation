@@ -108,29 +108,35 @@ def main():
     print('Teacher & Distillation: '       + str(teacher_st_loss.numpy()))
     print('Teacher & Proposed(rate=0.1): ' + str(teacher_cam01_loss.numpy()))
     print('Teacher & Proposed(rate=0.2): ' + str(teacher_cam02_loss.numpy()))
-    print('Teacher & Proposed(rate=0.3): ' + str(teacher_cam000_loss.numpy()))
+    print('Teacher & Proposed(0.2->0): ' + str(teacher_cam000_loss.numpy()))
 
 def create_teacher_cam(image, label, feature, model):
-    weight = model.fc.weight[label]
-    weight = weight.reshape(1024, 1, 1)
-    cam = feature * weight  
-    cam = cam.detach().cpu().numpy()
-    cam = np.sum(cam, axis=0)
-    cam = cv2.resize(cam, (32, 32))
-    cam = (cam - np.min(cam)) / (np.max(cam) - np.min(cam))
-    cam = torch.tensor(cam)
-    return cam
+    attmap = np.array([])
+    for i in range(10):
+        weight = model.fc.weight[i]
+        weight = weight.reshape(1024, 1, 1)
+        cam = feature * weight
+        cam = cam.detach().cpu().numpy()
+        cam = np.sum(cam, axis=0)
+        cam = cv2.resize(cam, (32, 32))
+        cam = (cam - np.min(cam)) / (np.max(cam) - np.min(cam))
+        attmap = np.append(attmap, cam)
+    attmap = torch.tensor(attmap)
+    return attmap
 
 def create_student_cam(image, label, feature, model):
-    weight = model.fc.weight[label]
-    weight = weight.reshape(512, 1, 1)
-    cam = feature * weight  
-    cam = cam.detach().cpu().numpy()
-    cam = np.sum(cam, axis=0)
-    cam = cv2.resize(cam, (32, 32))
-    cam = (cam - np.min(cam)) / (np.max(cam) - np.min(cam))
-    cam = torch.tensor(cam)
-    return cam
+    attmap = np.array([])
+    for i in range(10):
+        weight = model.fc.weight[i]
+        weight = weight.reshape(512, 1, 1)
+        cam = feature * weight
+        cam = cam.detach().cpu().numpy()
+        cam = np.sum(cam, axis=0)
+        cam = cv2.resize(cam, (32, 32))
+        cam = (cam - np.min(cam)) / (np.max(cam) - np.min(cam))
+        attmap = np.append(attmap, cam)
+    attmap = torch.tensor(attmap)
+    return attmap
 
 
 if __name__ == '__main__':
