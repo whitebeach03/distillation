@@ -15,7 +15,8 @@ from src.kd_loss.cam_loss import CAMLoss
 import pickle
 
 def main():
-    for i in range(1):
+    for i in range(1, 3):
+        print(i)
         cam_rate = '000' # default: '02', CAM-curriculum: '00', '000'
         epochs = 200
         batch_size = 128
@@ -60,19 +61,20 @@ def main():
                 preds, student_features = student(images)
                 targets, teacher_features = teacher(images)
                 
-                student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
-                teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
+                # student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
+                # teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
                 
-                if cam_rate == '01':
-                    loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
-                elif cam_rate == '02': 
-                    loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*cam_loss(student_cam, teacher_cam)
-                elif cam_rate == '03':
-                    loss = 0.5*loss_fn(preds, labels) + 0.2*T*T*soft_loss(preds, targets) + 0.3*cam_loss(student_cam, teacher_cam)
-                elif cam_rate == '04':
-                    loss = 0.5*loss_fn(preds, labels) + 0.1*T*T*soft_loss(preds, targets) + 0.4*cam_loss(student_cam, teacher_cam)
-                elif cam_rate == '05':
-                    loss = 0.5*loss_fn(preds, labels) + 0.5*cam_loss(student_cam, teacher_cam)
+                # if cam_rate == '01':
+                #     loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
+                # elif cam_rate == '02': 
+                #     loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*cam_loss(student_cam, teacher_cam)
+                # elif cam_rate == '03':
+                #     loss = 0.5*loss_fn(preds, labels) + 0.2*T*T*soft_loss(preds, targets) + 0.3*cam_loss(student_cam, teacher_cam)
+                # elif cam_rate == '04':
+                #     loss = 0.5*loss_fn(preds, labels) + 0.1*T*T*soft_loss(preds, targets) + 0.4*cam_loss(student_cam, teacher_cam)
+                # elif cam_rate == '05':
+                #     loss = 0.5*loss_fn(preds, labels) + 0.5*cam_loss(student_cam, teacher_cam)
+                
                 # CAM Curriculum learning     
                 # elif cam_rate == '00':
                 #     if epoch <= 50:
@@ -81,11 +83,13 @@ def main():
                 #         loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
                 #     elif 100 < epoch:
                 #         loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
-                elif cam_rate == '000':
+                if cam_rate == '000':
                     if epoch <= 100:
+                        student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
+                        teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
                         loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*cam_loss(student_cam, teacher_cam)
                     elif 100 < epoch:
-                        loss = loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
+                        loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
                 
                 
                 optim.zero_grad()
