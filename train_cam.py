@@ -15,9 +15,9 @@ from src.kd_loss.cam_loss import CAMLoss
 import pickle
 
 def main():
-    for i in range(1):
+    for i in range(3):
         print(i)
-        cam_rate = '02' # default: '02', CAM-curriculum: '00', '000'
+        cam_rate = '00' # default: '02', CAM-curriculum: '00', '000'
         epochs = 200
         batch_size = 128
         np.random.seed(i)
@@ -64,7 +64,9 @@ def main():
                 student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
                 teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
                 
-                if cam_rate == '01':
+                if cam_rate == '00':
+                    loss = cam_loss(teacher_cam, student_cam)
+                elif cam_rate == '01':
                     loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
                 elif cam_rate == '02': 
                     loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*cam_loss(student_cam, teacher_cam)
@@ -178,40 +180,7 @@ def create_teacher_cam(model, images, labels, features, batch_size, device):
             attmap = torch.cat((attmap, cam), dim=0)
     return attmap
 
-# def create_student_cam(model, images, labels, features, batch_size, device):
-#     attmap = np.array([])
-#     for i in range(batch_size):
-#         image, label = images[i], labels[i]
-#         feature = features[i].to(device)
-        
-#         weight = model.fc.weight[label]
-#         weight = weight.reshape(512, 1, 1)
-#         cam = feature * weight  
-#         cam = cam.detach().cpu().numpy()
-#         cam = np.sum(cam, axis=0)
-    
-#         attmap = np.append(attmap, cam)
-#     attmap = torch.tensor(attmap)
-#     attmap = attmap.to(device)
-#     return attmap
 
-# def create_teacher_cam(model, images, labels, features, batch_size, device):
-#     attmap = np.array([])
-#     for i in range(batch_size):
-#         image, label = images[i], labels[i]
-#         feature = features[i].to(device)
-        
-#         weight = model.fc.weight[label]
-#         weight = weight.reshape(1024, 1, 1)
-#         cam = feature * weight  
-#         cam = cam.detach().cpu().numpy()
-#         cam = np.sum(cam, axis=0)
-    
-#         attmap = np.append(attmap, cam)
-#     attmap = torch.tensor(attmap)
-#     attmap = attmap.to(device)
-#     return attmap    
-    
 
 if __name__ == '__main__':
     main()

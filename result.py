@@ -42,7 +42,6 @@ def main():
     print('| Distillation             | avg: ' + str(st_avg)       + ' | best: ' + str(st_best)      + ' |')
     print('| Proposed(rate=0.1)       | avg: ' + str(cam01_avg)    + ' | best: ' + str(cam01_best)   + ' |')
     print('| Proposed(rate=0.2)       | avg: ' + str(cam02_avg)    + ' | best: ' + str(cam02_best)   + ' |')
-    print('| Proposed(rate=0.2->0.0)  | avg: ' + str(cam000_avg)   + ' | best: ' + str(cam000_best)  + ' |')
     # print('| Proposed(rate=0.2->0.1->0.0)  | avg: ' + str(cam00_avg)   + ' | best: ' + str(cam00_best)  + ' |')
     
     # plot result
