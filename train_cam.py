@@ -15,9 +15,9 @@ from src.kd_loss.cam_loss import CAMLoss
 import pickle
 
 def main():
-    for i in range(3):
+    for i in range(1):
         print(i)
-        cam_rate = '00' # default: '02', CAM-curriculum: '00', '000'
+        cam_rate = '02' # default: '02', CAM-curriculum: '00', '000'
         epochs = 200
         batch_size = 128
         np.random.seed(i)
@@ -40,7 +40,7 @@ def main():
         teacher = resnet_teacher().to(device)
         student = resnet_student().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth')) # 変更箇所
+        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(epochs) + '_' + str(i) + '.pth')) # 変更箇所
         loss_fn = nn.CrossEntropyLoss() 
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         
@@ -118,7 +118,7 @@ def main():
             if score <= val_acc:
                 print('save param')
                 score = val_acc
-                torch.save(student.state_dict(), './logs/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pth') 
+                torch.save(student.state_dict(), './logs/resnet/cam/' + str(cam_rate) + '_' + str(epochs) + '_' + str(i) + '.pth') 
             
             student_hist['loss'].append(train_loss)
             student_hist['accuracy'].append(train_acc)
@@ -127,10 +127,10 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
             
-            with open('./history/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pickle', mode='wb') as f: 
+            with open('./history/resnet/cam/' + str(cam_rate) + '_' + str(epochs) + '_' + str(i) + '.pickle', mode='wb') as f: 
                 pickle.dump(student_hist, f)
         
-        student.load_state_dict(torch.load('./logs/resnet/cam/' + str(cam_rate) + '_' + str(i) + '.pth')) 
+        student.load_state_dict(torch.load('./logs/resnet/cam/' + str(cam_rate) + '_' + str(epochs) + '_' + str(i) + '.pth')) 
         test = {'acc': [], 'loss': []}
         # distillation student test
         student.eval()
@@ -149,7 +149,7 @@ def main():
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
         
-        with open('./history/resnet/cam/' + str(cam_rate) + '_test' + str(i) + '.pickle', mode='wb') as f: # 変更箇所
+        with open('./history/resnet/cam/' + str(cam_rate) + '_' + str(epochs) + '_test' + str(i) + '.pickle', mode='wb') as f: # 変更箇所
             pickle.dump(test, f)
 
 def create_student_cam(model, images, labels, features, batch_size, device):

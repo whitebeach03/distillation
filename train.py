@@ -92,7 +92,7 @@ def main():
             if score <= val_acc:
                 print('save param')
                 score = val_acc
-                torch.save(model.state_dict(), './logs/resnet/' + str(model_size) + '/' + str(i) + '.pth') 
+                torch.save(model.state_dict(), './logs/resnet/' + str(model_size) + '/' + str(epochs) + '_' + str(i) + '.pth') 
 
             history['loss'].append(train_loss)
             history['accuracy'].append(train_acc)
@@ -101,11 +101,11 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
         
-        with open('./history/resnet/' + str(model_size) + '/' + str(i) + '.pickle', mode='wb') as f: #########
+        with open('./history/resnet/' + str(model_size) + '/' + str(epochs) + '_' + str(i) + '.pickle', mode='wb') as f: 
             pickle.dump(history, f)
 
         # model test
-        model.load_state_dict(torch.load('./logs/resnet/' + str(model_size) + '/' + str(i) + '.pth'))
+        model.load_state_dict(torch.load('./logs/resnet/' + str(model_size) + '/' + str(epochs) + '_' + str(i) + '.pth'))
         model.eval()
         
         test = {'acc': [], 'loss': []}
@@ -128,7 +128,7 @@ def main():
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
         
-        with open('./history/resnet/' + str(model_size) + '/' + 'test' + str(i) + '.pickle', mode='wb') as f: 
+        with open('./history/resnet/' + str(model_size) + '/' + str(epochs) + '_' + 'test' + str(i) + '.pickle', mode='wb') as f: 
             pickle.dump(test, f)
         
     

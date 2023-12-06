@@ -14,7 +14,7 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(1, 5):
+    for i in range(1):
         print(i)
         epochs = 200
         batch_size = 128
@@ -38,7 +38,7 @@ def main():
         teacher = resnet_teacher().to(device)
         student = resnet_student().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth')) 
+        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(epochs) + '_' + str(i) + '.pth')) 
         loss_fn = nn.CrossEntropyLoss()
         student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         
@@ -97,7 +97,7 @@ def main():
             if score <= val_acc:
                 print('save param')
                 score = val_acc
-                torch.save(student.state_dict(), './logs/resnet/st/' + str(i) + '.pth') 
+                torch.save(student.state_dict(), './logs/resnet/st/' + str(epochs) + '_' + str(i) + '.pth') 
             
             student_hist['loss'].append(train_loss)
             student_hist['accuracy'].append(train_acc)
@@ -106,10 +106,10 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
             
-            with open('./history/resnet/st/' + str(i) + '.pickle', mode='wb') as f:
+            with open('./history/resnet/st/' + str(epochs) + '_' + str(i) + '.pickle', mode='wb') as f:
                 pickle.dump(student_hist, f)
 
-        student.load_state_dict(torch.load('./logs/resnet/st/' + str(i) + '.pth'))
+        student.load_state_dict(torch.load('./logs/resnet/st/' + str(epochs) + '_' + str(i) + '.pth'))
         test = {'acc': [], 'loss': []}
         # distillation student test
         student.eval()
@@ -128,7 +128,7 @@ def main():
 
         test['acc'].append(test_acc)
         test['loss'].append(test_loss)
-        with open('./history/resnet/st/test' + str(i) + '.pickle', mode='wb') as f:
+        with open('./history/resnet/st/' + str(epochs) + '_' + 'test' + str(i) + '.pickle', mode='wb') as f:
             pickle.dump(test, f)
         
 if __name__ == '__main__':
