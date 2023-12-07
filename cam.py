@@ -25,20 +25,17 @@ def main():
     student = resnet_student().to(device)
     teacher = resnet_teacher().to(device)
     proposed = resnet_student().to(device)
-    hardcam = resnet_student().to(device)
     st = resnet_student().to(device)
     
 
-    student.load_state_dict(torch.load('./logs/resnet/student/0.pth'))
-    teacher.load_state_dict(torch.load('./logs/resnet/teacher/0.pth'))
-    proposed.load_state_dict(torch.load('logs/resnet/cam/0.pth'))
-    hardcam.load_state_dict(torch.load('logs/resnet/sample/0.pth'))
-    st.load_state_dict(torch.load('logs/resnet/st/0.pth'))
+    student.load_state_dict(torch.load('./logs/resnet/student/200_0.pth'))
+    teacher.load_state_dict(torch.load('./logs/resnet/teacher/200_0.pth'))
+    proposed.load_state_dict(torch.load('logs/resnet/cam/02_200_0.pth'))
+    st.load_state_dict(torch.load('logs/resnet/st/200_0.pth'))
  
     student.eval()
     teacher.eval()
     proposed.eval()
-    hardcam.eval()
     st.eval()
 
     # setting dataset
@@ -53,7 +50,6 @@ def main():
         _, student_cams = student(images)
         _, teacher_cams = teacher(images)
         _, proposed_cams = proposed(images)
-        _, hardcam_cams = hardcam(images)
         preds, st_cams = st(images)
 
         # show 10-CAM
@@ -64,29 +60,25 @@ def main():
             student_feature = student_cams[i].to(device)
             teacher_feature = teacher_cams[i].to(device)
             proposed_feature = proposed_cams[i].to(device)
-            hardcam_feature = hardcam_cams[i].to(device)
             st_feature = st_cams[i].to(device)
           
             student_cam = create_student_cam(image, label, student_feature, student)
             teacher_cam = create_teacher_cam(image, label, teacher_feature, teacher)
             proposed_cam = create_student_cam(image, label, proposed_feature, proposed)
-            hardcam_cam = create_student_cam(image, label, hardcam_feature, hardcam)
             st_cam = create_student_cam(image, label, st_feature, st)
             
-            fig, ax = plt.subplots(2, 3)
-            ax[0][0].set_title('Image')
-            ax[0][1].set_title('Teacher')
-            ax[0][2].set_title('Student')
-            ax[1][0].set_title('hard+CAMloss')
-            ax[1][1].set_title('Proposed')
-            ax[1][2].set_title('distillation')
+            fig, ax = plt.subplots(1, 5)
+            ax[0].set_title('Image')
+            ax[1].set_title('Teacher')
+            ax[2].set_title('Student')
+            ax[3].set_title('Proposed')
+            ax[4].set_title('distillation')
             
-            ax[0][0].imshow(image.permute(1, 2, 0).cpu().numpy())
-            ax[0][1].imshow(teacher_cam)
-            ax[0][2].imshow(student_cam)
-            ax[1][0].imshow(hardcam_cam)
-            ax[1][1].imshow(proposed_cam)
-            ax[1][2].imshow(st_cam)
+            ax[0].imshow(image.permute(1, 2, 0).cpu().numpy())
+            ax[1].imshow(teacher_cam)
+            ax[2].imshow(student_cam)
+            ax[3].imshow(proposed_cam)
+            ax[4].imshow(st_cam)
     
             plt.suptitle(name[label], fontsize=17)
             plt.savefig('./cam/0' + str(i) + '.png')

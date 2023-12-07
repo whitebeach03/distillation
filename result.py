@@ -43,8 +43,8 @@ def main():
     plt.xlabel('epoch')
     plt.ylabel('validation accuracy')
     
-    plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
-    plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
+    # plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
+    # plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
     plt.plot(x, st_acc,      label='Distillation',          linewidth=0.5, color='orange')
     # plt.plot(x, cam01_acc,   label='Proposed(rate=0.1)',    linewidth=0.5, color='green')
     plt.plot(x, cam02_acc,   label='Proposed(rate=0.2)',    linewidth=0.5, color='black')
@@ -52,7 +52,7 @@ def main():
     plt.xticks(np.arange(0, epochs+10, epochs/10))
     plt.yticks(np.arange(0, 0.95, 0.05))
     plt.xlim(0, epochs)
-    plt.ylim(0.75, 0.90)
+    plt.ylim(0.65, 0.90)
     plt.legend()
     plt.savefig('./result/result.png')
 

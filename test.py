@@ -18,11 +18,11 @@ def main():
     
     teacher_student_loss = 0
     teacher_st_loss = 0
-    teacher_cam01_loss = 0
+    # teacher_cam01_loss = 0
     teacher_cam02_loss = 0
-    teacher_cam000_loss = 0
+    # teacher_cam000_loss = 0
     
-    iteration = 1
+    iteration = 3
     
     for i in range(iteration):
         print(i)
@@ -39,16 +39,16 @@ def main():
         teacher = resnet_teacher().to(device)
         student = resnet_student().to(device)
         st = resnet_student().to(device)
-        cam01 = resnet_student().to(device)
+        # cam01 = resnet_student().to(device)
         cam02 = resnet_student().to(device)
-        cam000 = resnet_student().to(device)
+        # cam000 = resnet_student().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(i) + '.pth'))
-        student.load_state_dict(torch.load('./logs/resnet/student/' + str(i) + '.pth'))
-        st.load_state_dict(torch.load('./logs/resnet/st/' + str(i) + '.pth'))
-        cam01.load_state_dict(torch.load('./logs/resnet/cam/01_' + str(i) + '.pth'))
-        cam02.load_state_dict(torch.load('./logs/resnet/cam/02_' + str(i) + '.pth'))
-        cam000.load_state_dict(torch.load('./logs/resnet/cam/000_' + str(i) + '.pth'))
+        teacher.load_state_dict(torch.load('./logs/resnet/teacher/200_' + str(i) + '.pth'))
+        student.load_state_dict(torch.load('./logs/resnet/student/200_' + str(0) + '.pth')) # 変更箇所
+        st.load_state_dict(torch.load('./logs/resnet/st/200_' + str(i) + '.pth'))
+        # cam01.load_state_dict(torch.load('./logs/resnet/cam/01_200_' + str(i) + '.pth'))
+        cam02.load_state_dict(torch.load('./logs/resnet/cam/02_200_' + str(i) + '.pth'))
+        # cam000.load_state_dict(torch.load('./logs/resnet/cam/000_' + str(i) + '.pth'))
         
         loss_fn = nn.CrossEntropyLoss()
         cam_loss = nn.MSELoss()
@@ -56,9 +56,9 @@ def main():
         teacher.eval()
         student.eval()
         st.eval()
-        cam01.eval()
+        # cam01.eval()
         cam02.eval()
-        cam000.eval()
+        # cam000.eval()
        
         with torch.no_grad():           
             for images, labels in tqdm(dataloader, leave=False):
@@ -66,9 +66,9 @@ def main():
                 _, teacher_cams = teacher(images)
                 _, student_cams = student(images)
                 _, st_cams = st(images)
-                _, cam01_cams = cam01(images)
+                # _, cam01_cams = cam01(images)
                 _, cam02_cams = cam02(images)
-                _, cam000_cams = cam000(images)
+                # _, cam000_cams = cam000(images)
                 
                 for j in range(batch_size):
                     image = images[j]
@@ -76,39 +76,39 @@ def main():
                     teacher_feature = teacher_cams[j].to(device)
                     student_feature = student_cams[j].to(device)
                     st_feature = st_cams[j].to(device)
-                    cam01_feature = cam01_cams[j].to(device)
+                    # cam01_feature = cam01_cams[j].to(device)
                     cam02_feature = cam02_cams[j].to(device)
-                    cam000_feature = cam000_cams[j].to(device)
+                    # cam000_feature = cam000_cams[j].to(device)
                     
                     teacher_cam = create_teacher_cam(image, label, teacher_feature, teacher)
                     student_cam = create_student_cam(image, label, student_feature, student)
                     st_cam = create_student_cam(image, label, st_feature, st)
-                    cam01_cam = create_student_cam(image, label, cam01_feature, cam01)
+                    # cam01_cam = create_student_cam(image, label, cam01_feature, cam01)
                     cam02_cam = create_student_cam(image, label, cam02_feature, cam02)
-                    cam000_cam = create_student_cam(image, label, cam000_feature, cam02)
+                    # cam000_cam = create_student_cam(image, label, cam000_feature, cam02)
                     
                     # 1. 教師と生徒のLoss
                     teacher_student_loss += cam_loss(teacher_cam, student_cam)
                     # 2. 教師と従来法のLoss
                     teacher_st_loss      += cam_loss(teacher_cam, st_cam)
                     # 3. 教師と提案法(cam_rate=0.1)のLoss
-                    teacher_cam01_loss   += cam_loss(teacher_cam, cam01_cam)
+                    # teacher_cam01_loss   += cam_loss(teacher_cam, cam01_cam)
                     # 4. 教師と提案法(cam_rate=0.2)のLoss
                     teacher_cam02_loss   += cam_loss(teacher_cam, cam02_cam)
                     # 5. 教師と提案法(cam_rate=0.3)のLoss
-                    teacher_cam000_loss   += cam_loss(teacher_cam, cam000_cam)
+                    # teacher_cam000_loss   += cam_loss(teacher_cam, cam000_cam)
             
     teacher_student_loss /= iteration
     teacher_st_loss /= iteration
-    teacher_cam01_loss /= iteration
+    # teacher_cam01_loss /= iteration
     teacher_cam02_loss /= iteration
-    teacher_cam000_loss /= iteration
+    # teacher_cam000_loss /= iteration
     
     print('Teacher & Student: '            + str(teacher_student_loss.numpy()))
     print('Teacher & Distillation: '       + str(teacher_st_loss.numpy()))
-    print('Teacher & Proposed(rate=0.1): ' + str(teacher_cam01_loss.numpy()))
+    # print('Teacher & Proposed(rate=0.1): ' + str(teacher_cam01_loss.numpy()))
     print('Teacher & Proposed(rate=0.2): ' + str(teacher_cam02_loss.numpy()))
-    print('Teacher & Proposed(0.2->0): ' + str(teacher_cam000_loss.numpy()))
+    # print('Teacher & Proposed(0.2->0): ' + str(teacher_cam000_loss.numpy()))
 
 def create_teacher_cam(image, label, feature, model):
     attmap = np.array([])
