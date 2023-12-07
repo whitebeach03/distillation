@@ -15,7 +15,7 @@ from src.kd_loss.cam_loss import CAMLoss
 import pickle
 
 def main():
-    for i in range(1):
+    for i in range(1, 3):
         print(i)
         cam_rate = '02' # default: '02', CAM-curriculum: '00', '000'
         epochs = 200

@@ -16,7 +16,7 @@ def main():
     teacher_acc = load_hist(teacher_path, epochs, 5)
     st_acc = load_hist(st_path, epochs, 3)
     # cam01_acc = load_hist(cam01_path, epochs, 1)
-    cam02_acc = load_hist(cam02_path, epochs, 1)
+    cam02_acc = load_hist(cam02_path, epochs, 3)
     
     # print test accuracy
     student_avg = load_avg_test(student_path, epochs, 1)
@@ -27,8 +27,8 @@ def main():
     st_best = load_best_test(st_path, epochs, 3)    
     # cam01_avg = load_avg_test(cam01_path, epochs, 1)
     # cam01_best = load_best_test(cam01_path, epochs, 1) 
-    cam02_avg = load_avg_test(cam02_path, epochs, 1)
-    cam02_best = load_best_test(cam02_path, epochs, 1)
+    cam02_avg = load_avg_test(cam02_path, epochs, 3)
+    cam02_best = load_best_test(cam02_path, epochs, 3)
     
     print('| Student                  | avg: ' + str(student_avg)  + ' | best: ' + str(student_best) + ' |')
     print('| Teacher                  | avg: ' + str(teacher_avg)  + ' | best: ' + str(teacher_best) + ' |')
