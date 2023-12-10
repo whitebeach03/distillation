@@ -15,13 +15,13 @@ from src.utils import *
 import pickle
 
 def main():
-    for i in range(1, 2):
+    for i in range(5):
         print(i)
-        model_size = 'student'
-        epochs = 200
+        model_size = 'teacher'
+        epochs = 100
         batch_size = 128
-        torch.manual_seed(i)
-        np.random.seed(i)
+        seed_everything(i)
+            
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         es = EarlyStopping(patience=5, verbose=1)
         

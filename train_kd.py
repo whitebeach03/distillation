@@ -7,19 +7,18 @@ import torchvision.transforms as transforms
 from torchvision import datasets
 from torch.utils.data import random_split, DataLoader
 from src.model import resnet_student, resnet_teacher, SampleModel
-from src.utils import EarlyStopping
+from src.utils import *
 import torch.optim as optimizers
 from sklearn.metrics import accuracy_score
 from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(1):
+    for i in range(3):
         print(i)
-        epochs = 200
+        epochs = 100
         batch_size = 128
-        np.random.seed(i)
-        torch.manual_seed(i)
+        seed_everything(i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         data_dir = './data/cifar10'

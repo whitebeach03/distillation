@@ -29,3 +29,12 @@ def save_param(es, loss, model, model_type, seed):
     else:
         torch.save(model.state_dict(), './logs/resnet/' + model_type + '/' + str(seed) + '_param.pth')
         return False 
+
+def seed_everything(seed):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.backends.cudnn.deterministic = True
