@@ -17,7 +17,7 @@ def main():
     elif epochs == 100:
         teacher_iter = 5
         student_iter = 0
-        st_iter      = 1
+        st_iter      = 3
         cam10_iter   = 0
     
     # setting path
