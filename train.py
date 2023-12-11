@@ -6,7 +6,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision import datasets
 from torch.utils.data import random_split, DataLoader
-from src.model import resnet_student, resnet_teacher, SampleModel
+from src.model import resnet_student, resnet_teacher, Student, Teacher
 from src.utils import EarlyStopping
 import torch.optim as optimizers
 from sklearn.metrics import accuracy_score
@@ -20,6 +20,8 @@ def main():
         model_size = 'teacher'
         epochs = 100
         batch_size = 128
+        # torch.manual_seed(i)
+        # np.random.seed(i)
         seed_everything(i)
             
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -39,10 +41,12 @@ def main():
         test_dataloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
         
         # setting model
-        if model_size == 'teacher':
-            model = resnet_teacher().to(device)
-        elif model_size == 'student':
-            model = resnet_student().to(device)
+        # if model_size == 'teacher':
+        #     model = resnet_teacher().to(device)
+        # elif model_size == 'student':
+        #     model = resnet_student().to(device)
+        
+        model = Student().to(device)
 
         optim = optimizers.Adam(model.parameters())
         loss_fn = nn.CrossEntropyLoss()
@@ -92,7 +96,7 @@ def main():
             if score <= val_acc:
                 print('save param')
                 score = val_acc
-                torch.save(model.state_dict(), './logs/resnet/' + str(model_size) + '/' + str(epochs) + '_' + str(i) + '.pth') 
+                # torch.save(model.state_dict(), './logs/resnet/' + str(model_size) + '/' + str(epochs) + '_' + str(i) + '.pth') 
 
             history['loss'].append(train_loss)
             history['accuracy'].append(train_acc)
@@ -101,8 +105,8 @@ def main():
 
             print(f'epoch: {epoch+1}, loss: {train_loss:.3f}, accuracy: {train_acc:.3f}, val_loss: {val_loss:.3f}, val_accuracy: {val_acc:.3f}')
         
-        with open('./history/resnet/' + str(model_size) + '/' + str(epochs) + '_' + str(i) + '.pickle', mode='wb') as f: 
-            pickle.dump(history, f)
+        # with open('./history/resnet/' + str(model_size) + '/' + str(epochs) + '_' + str(i) + '.pickle', mode='wb') as f: 
+        #     pickle.dump(history, f)
 
         # model test
         model.load_state_dict(torch.load('./logs/resnet/' + str(model_size) + '/' + str(epochs) + '_' + str(i) + '.pth'))

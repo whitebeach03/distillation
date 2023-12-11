@@ -18,9 +18,11 @@ from src.utils import *
 def main():
     for i in range(3):
         print(i)
-        cam_rate = '10' # default: '01', CAM-curriculum: '10'
+        cam_rate = '01' # default: '01', CAM-curriculum: '10'
         epochs = 100
         batch_size = 128
+        # torch.manual_seed(i)
+        # np.random.seed(i)
         seed_everything(i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
@@ -42,7 +44,7 @@ def main():
         
         teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(epochs) + '_' + str(i) + '.pth')) # 変更箇所
         loss_fn = nn.CrossEntropyLoss() 
-        student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': [], 'cam_loss': []}
+        student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
         
         # train
         optim = optimizers.Adam(student.parameters())
@@ -61,42 +63,40 @@ def main():
                 preds, student_features = student(images)
                 targets, teacher_features = teacher(images)
                 
-                # student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
-                # teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
-                # camloss = cam_loss(student_cam, teacher_cam)
-                
-                # if cam_rate == '00':
-                #     loss = camloss
-                # elif cam_rate == '01':
-                #     loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*camloss
-                # elif cam_rate == '02': 
-                #     loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*camloss
-                # elif cam_rate == '03':
-                #     loss = 0.5*loss_fn(preds, labels) + 0.2*T*T*soft_loss(preds, targets) + 0.3*camloss
-                # elif cam_rate == '04':
-                #     loss = 0.5*loss_fn(preds, labels) + 0.1*T*T*soft_loss(preds, targets) + 0.4*camloss
-                # elif cam_rate == '05':
-                #     loss = 0.5*loss_fn(preds, labels) + 0.5*camloss
+                student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
+                teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
+                camloss = cam_loss(student_cam, teacher_cam)
+                if cam_rate == '00':
+                    loss = camloss
+                elif cam_rate == '01':
+                    loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*camloss
+                elif cam_rate == '02': 
+                    loss = 0.5*loss_fn(preds, labels) + 0.3*T*T*soft_loss(preds, targets) + 0.2*camloss
+                elif cam_rate == '03':
+                    loss = 0.5*loss_fn(preds, labels) + 0.2*T*T*soft_loss(preds, targets) + 0.3*camloss
+                elif cam_rate == '04':
+                    loss = 0.5*loss_fn(preds, labels) + 0.1*T*T*soft_loss(preds, targets) + 0.4*camloss
+                elif cam_rate == '05':
+                    loss = 0.5*loss_fn(preds, labels) + 0.5*camloss
                 
                 # CAM Curriculum learning     
-                # if cam_rate == '10':
-                if epoch <= 40:
-                    student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
-                    teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
-                    loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
-                else:
-                    loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
+                # if epoch <= 40:
+                #     student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
+                #     teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
+                #     loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
+                # else:
+                #     loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
                 
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
                 train_loss += loss.item()
                 train_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
-                camloss += loss.item()
+                # camloss += loss.item()
             train_loss /= len(train_dataloader)
             train_acc /= len(train_dataloader)
-            camloss /= len(train_dataloader)
-            student_hist['cam_loss'].append(camloss)
+            # camloss /= len(train_dataloader)
+            # student_hist['cam_loss'].append(camloss)
             
             # student validation
             student.eval()

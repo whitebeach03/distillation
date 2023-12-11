@@ -374,18 +374,45 @@ class ResNet(nn.Module):
         x = self.fc(x)
         return x, self.cam
 
-class SampleModel(nn.Module):
+class Student(nn.Module):
     def __init__(self, input_dim=3):
         super().__init__()
-        self.conv1 = nn.Conv2d(input_dim, 32, 3, padding=1)
-        self.conv2 = nn.Conv2d(32, 32, 3, padding=1)
-        self.conv3 = nn.Conv2d(32, 128, 3, padding=1)
-        self.conv4 = nn.Conv2d(128, 128, 3, padding=1)
-        self.conv5 = nn.Conv2d(128, 128, 3, padding=1)
+        self.conv1 = nn.Conv2d(input_dim, 16, 3, padding=1)
+        self.conv2 = nn.Conv2d(16, 16, 3, padding=1)
+        self.conv3 = nn.Conv2d(16, 32, 3, padding=1)
+        self.conv4 = nn.Conv2d(32, 32, 3, padding=1)
+        self.conv5 = nn.Conv2d(32, 32, 3, padding=1)
         self.maxpool = nn.MaxPool2d(2, stride=2)
         self.relu = nn.ReLU(inplace=True)
         self.gap = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(128, 10)
+        self.fc = nn.Linear(32, 10)
+        
+    def forward(self, x):
+        x = self.relu(self.conv1(x))
+        x = self.relu(self.conv2(x))
+        x = self.maxpool(x)
+        x = self.relu(self.conv3(x))
+        x = self.relu(self.conv4(x))
+        x = self.maxpool(x)
+        x = self.relu(self.conv5(x))
+        self.attmap = x
+        x = self.gap(x)
+        x = x.view(x.shape[0], -1)
+        x = self.fc(x)
+        return x, [self.attmap, self.fc.weight]
+
+class Teacher(nn.Module):
+    def __init__(self, input_dim=3):
+        super().__init__()
+        self.conv1 = nn.Conv2d(input_dim, 128, 3, padding=1)
+        self.conv2 = nn.Conv2d(128, 128, 3, padding=1)
+        self.conv3 = nn.Conv2d(128, 512, 3, padding=1)
+        self.conv4 = nn.Conv2d(512, 512, 3, padding=1)
+        self.conv5 = nn.Conv2d(512, 512, 3, padding=1)
+        self.maxpool = nn.MaxPool2d(2, stride=2)
+        self.relu = nn.ReLU(inplace=True)
+        self.gap = nn.AdaptiveAvgPool2d((1, 1))
+        self.fc = nn.Linear(512, 10)
         
     def forward(self, x):
         x = self.relu(self.conv1(x))
@@ -411,8 +438,10 @@ def resnet_teacher(output_dim=10):
     return ResNetAssistant(BottleNeck, [4,6,9,4], num_classes=output_dim)
     
 # モデルのパラメータ数のカウント
-teacher = resnet_teacher()
-student = resnet_student()
+# teacher = resnet_teacher()
+# student = resnet_student()
+teacher = Teacher()
+student = Student()
 teacher.eval()
 student.eval()
 
