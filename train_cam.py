@@ -7,7 +7,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision import datasets
 from torch.utils.data import random_split, DataLoader
-from src.model import resnet_student, resnet_teacher
+from src.model import resnet_student, resnet_teacher, Student, Teacher
 import torch.optim as optimizers
 from sklearn.metrics import accuracy_score
 from src.kd_loss.st import SoftTargetLoss
@@ -16,14 +16,13 @@ import pickle
 from src.utils import *
 
 def main():
-    for i in range(3):
+    for i in range(1):
         print(i)
         cam_rate = '01' # default: '01', CAM-curriculum: '10'
         epochs = 100
         batch_size = 128
-        # torch.manual_seed(i)
-        # np.random.seed(i)
-        seed_everything(i)
+        torch.manual_seed(i)
+        np.random.seed(i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         data_dir = './data/cifar10'
@@ -42,9 +41,9 @@ def main():
         teacher = resnet_teacher().to(device)
         student = resnet_student().to(device)
         
-        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(epochs) + '_' + str(i) + '.pth')) # 変更箇所
+        teacher.load_state_dict(torch.load('./logs/resnet/teacher/' + str(epochs) + '_' + str(i) + '.pth')) 
         loss_fn = nn.CrossEntropyLoss() 
-        student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': []}
+        student_hist = {'loss': [], 'accuracy': [], 'val_loss': [], 'val_accuracy': [], 'cam_loss': []}
         
         # train
         optim = optimizers.Adam(student.parameters())
@@ -92,11 +91,11 @@ def main():
                 optim.step()
                 train_loss += loss.item()
                 train_acc += accuracy_score(labels.tolist(), preds.argmax(dim=-1).tolist())
-                # camloss += loss.item()
+                camloss += loss.item()
             train_loss /= len(train_dataloader)
             train_acc /= len(train_dataloader)
-            # camloss /= len(train_dataloader)
-            # student_hist['cam_loss'].append(camloss)
+            camloss /= len(train_dataloader)
+            student_hist['cam_loss'].append(camloss)
             
             # student validation
             student.eval()
