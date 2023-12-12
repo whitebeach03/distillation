@@ -7,7 +7,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from torchvision import datasets
 from torch.utils.data import random_split, DataLoader
-from src.model import resnet_student, resnet_teacher, Student, Teacher
+from src.model import resnet_student, resnet_teacher
 import torch.optim as optimizers
 from sklearn.metrics import accuracy_score
 from src.kd_loss.st import SoftTargetLoss
@@ -16,7 +16,7 @@ import pickle
 from src.utils import *
 
 def main():
-    for i in range(1):
+    for i in range(3, 5):
         print(i)
         cam_rate = '01' # default: '01', CAM-curriculum: '10'
         epochs = 100

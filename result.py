@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def main():           
-    epochs = 200
+    epochs = 100
     
     # setting iteration
     if epochs == 200:
@@ -19,7 +19,7 @@ def main():
     elif epochs == 100: 
         teacher_iter = 5 
         student_iter = 0 
-        st_iter      = 3 
+        st_iter      = 5 # now
         cam01_iter   = 0 
         cam02_iter   = 0 
         cam03_iter   = 0
@@ -87,7 +87,7 @@ def main():
     plt.plot(x, teacher_acc, label='Teacher',                linewidth=0.5, color='blue')
     # plt.plot(x, student_acc, label='Student',                linewidth=0.5, color='red')
     plt.plot(x, st_acc,      label='Distillation',           linewidth=0.5, color='orange')
-    plt.plot(x, cam10_acc,   label='Proposed(rate=0.1->0)',  linewidth=0.5, color='green')
+    # plt.plot(x, cam10_acc,   label='Proposed(rate=0.1->0)',  linewidth=0.5, color='green')
     # plt.plot(x, cam01_acc,   label='Proposed(rate=0.1)',     linewidth=0.5, color='cyan')
     # plt.plot(x, cam02_acc,   label='Proposed(rate=0.2)',     linewidth=0.5, color='magenta')
     # plt.plot(x, cam03_acc,   label='Proposed(rate=0.3)',     linewidth=0.5, color='yellow')
@@ -97,7 +97,7 @@ def main():
     plt.xticks(np.arange(0, epochs+10, epochs/10))
     plt.yticks(np.arange(0, 0.95, 0.05))
     plt.xlim(0, epochs)
-    plt.ylim(0.55, 0.90)
+    plt.ylim(0.60, 0.90)
     plt.legend()
     plt.savefig('./result/resnet_' + str(epochs) + '.png')
     
