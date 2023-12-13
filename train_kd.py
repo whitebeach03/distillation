@@ -14,13 +14,13 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(5):
+    for i in range(2):
         print(i)
-        epochs = 100
+        epochs = 150
         batch_size = 128
-        torch.manual_seed(i)
-        np.random.seed(i)
-        # seed_everything(i)
+        # torch.manual_seed(i)
+        # np.random.seed(i)
+        seed_everything(100+i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         data_dir = './data/cifar10'
