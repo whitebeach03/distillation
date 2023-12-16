@@ -27,7 +27,7 @@ def main():
         cam05_iter   = 0
         cam10_iter   = 5
     elif epochs == 150: # 乱数系列 seed_everything
-        teacher_iter = 7 
+        teacher_iter = 7 #NOW synapse(7,8,9)
         student_iter = 0 
         st_iter      = 5
         cam00_iter   = 5
@@ -49,6 +49,7 @@ def main():
     cam04_path   = './history/resnet/cam/04_'
     cam05_path   = './history/resnet/cam/05_'
     cam10_path   = './history/resnet/cam/10_'
+
     
     # print test accuracy
     teacher_avg  = load_avg_test(teacher_path, epochs, teacher_iter)
@@ -71,6 +72,7 @@ def main():
     cam05_best   = load_best_test(cam05_path, epochs, cam05_iter)
     cam10_avg    = load_avg_test(cam10_path, epochs, cam10_iter)
     cam10_best   = load_best_test(cam10_path, epochs, cam10_iter)
+   
     print('| Teacher          | avg: ' + str(teacher_avg) + ' | best: ' + str(teacher_best) + ' |')
     print('| Student          | avg: ' + str(student_avg) + ' | best: ' + str(student_best) + ' |')
     print('| Distillation     | avg: ' + str(st_avg)      + ' | best: ' + str(st_best)      + ' |')
@@ -81,6 +83,7 @@ def main():
     print('| Proposed(0.4)    | avg: ' + str(cam04_avg)   + ' | best: ' + str(cam04_best)   + ' |')
     print('| Proposed(0.5)    | avg: ' + str(cam05_avg)   + ' | best: ' + str(cam05_best)   + ' |')
     print('| Proposed(0.1->0) | avg: ' + str(cam10_avg)   + ' | best: ' + str(cam10_best)   + ' |')
+    print('| Proposed         | avg: ' + str(cam005_avg)   + ' | best: ' + str(cam005_best)   + ' |')
     
     # loading history and plot
     teacher_acc = load_hist(teacher_path, epochs, teacher_iter)
@@ -93,6 +96,7 @@ def main():
     cam04_acc   = load_hist(cam04_path, epochs, cam04_iter)
     cam05_acc   = load_hist(cam05_path, epochs, cam05_iter)
     cam10_acc   = load_hist(cam10_path, epochs, cam10_iter)
+
     x = np.arange(epochs)
     fig = plt.figure()
     fig.patch.set_facecolor('white')

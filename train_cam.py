@@ -18,7 +18,7 @@ from src.utils import *
 def main():
     for i in range(1):
         print(i)
-        cam_rate = '05' # default: '01', CAM-curriculum: '10'
+        cam_rate = '005' # default: '01', CAM-curriculum: '10'
         epochs = 150
         batch_size = 128
         # torch.manual_seed(i)
@@ -78,7 +78,7 @@ def main():
                     loss = 0.5*loss_fn(preds, labels) + 0.1*T*T*soft_loss(preds, targets) + 0.4*camloss
                 elif cam_rate == '05':
                     loss = 0.5*loss_fn(preds, labels) + 0.5*camloss
-                elif cam_rate == '050':
+                elif cam_rate == '005':
                     loss = loss_fn(preds, labels) + 0.5*camloss
                 
                 # CAM Curriculum learning     
