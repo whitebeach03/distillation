@@ -14,7 +14,7 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(2):
+    for i in range(6, 8):
         print(i)
         epochs = 150
         batch_size = 128

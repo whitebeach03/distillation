@@ -27,11 +27,11 @@ def main():
         cam05_iter   = 0
         cam10_iter   = 5
     elif epochs == 150: # 乱数系列 seed_everything
-        teacher_iter = 7 #NOW synapse(7,8,9)
+        teacher_iter = 10 
         student_iter = 0 
-        st_iter      = 5
+        st_iter      = 10 
         cam00_iter   = 5
-        cam01_iter   = 5
+        cam01_iter   = 10 
         cam02_iter   = 5 
         cam03_iter   = 0
         cam04_iter   = 0
@@ -83,7 +83,6 @@ def main():
     print('| Proposed(0.4)    | avg: ' + str(cam04_avg)   + ' | best: ' + str(cam04_best)   + ' |')
     print('| Proposed(0.5)    | avg: ' + str(cam05_avg)   + ' | best: ' + str(cam05_best)   + ' |')
     print('| Proposed(0.1->0) | avg: ' + str(cam10_avg)   + ' | best: ' + str(cam10_best)   + ' |')
-    print('| Proposed         | avg: ' + str(cam005_avg)   + ' | best: ' + str(cam005_best)   + ' |')
     
     # loading history and plot
     teacher_acc = load_hist(teacher_path, epochs, teacher_iter)
@@ -105,9 +104,9 @@ def main():
     # plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
     # plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
     plt.plot(x, st_acc,      label='Distillation',      linewidth=0.5, color='orange')
-    plt.plot(x, cam00_acc,   label='Proposed(only)',    linewidth=0.5, color='red')
+    # plt.plot(x, cam00_acc,   label='Proposed(only)',    linewidth=0.5, color='red')
     plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='brown')
-    plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
+    # plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
     # plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='yellow')
     # plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='cyan')
     # plt.plot(x, cam05_acc,   label='Proposed(0.5)',     linewidth=0.5, color='black')
