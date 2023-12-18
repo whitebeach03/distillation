@@ -32,8 +32,8 @@ def main():
         st_iter      = 10 
         cam00_iter   = 5
         cam01_iter   = 10 
-        cam02_iter   = 5 
-        cam03_iter   = 0
+        cam02_iter   = 7 #NOW adaptpc(8から9)
+        cam03_iter   = 3 #NEXT ice9(3から9)
         cam04_iter   = 0
         cam05_iter   = 0 #TODO 0, 4
         cam10_iter   = 0
@@ -106,8 +106,8 @@ def main():
     plt.plot(x, st_acc,      label='Distillation',      linewidth=0.5, color='orange')
     # plt.plot(x, cam00_acc,   label='Proposed(only)',    linewidth=0.5, color='red')
     plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='brown')
-    # plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
-    # plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='yellow')
+    plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
+    plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='yellow')
     # plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='cyan')
     # plt.plot(x, cam05_acc,   label='Proposed(0.5)',     linewidth=0.5, color='black')
     # plt.plot(x, cam10_acc,   label='Proposed(rate=0.1->0)', linewidth=0.5, color='green')
@@ -132,7 +132,7 @@ def main():
     plt.plot(x, cam00_loss, label='CAM_ratio=0.0', linewidth=0.5, color='red')
     plt.plot(x, cam01_loss, label='CAM_ratio=0.1', linewidth=0.5, color='cyan')
     plt.plot(x, cam02_loss, label='CAM_ratio=0.2', linewidth=0.5, color='magenta')
-    # plt.plot(x, cam03_loss, label='CAM_ratio=0.3', linewidth=0.5, color='yellow')
+    plt.plot(x, cam03_loss, label='CAM_ratio=0.3', linewidth=0.5, color='yellow')
     # plt.plot(x, cam04_loss, label='CAM_ratio=0.4', linewidth=0.5, color='blown')
     # plt.plot(x, cam05_loss, label='CAM_ratio=0.5', linewidth=0.5, color='black')
     plt.xticks(np.arange(0, epochs+10, epochs/10))
