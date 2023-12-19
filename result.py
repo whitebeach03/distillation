@@ -33,7 +33,7 @@ def main():
         cam00_iter   = 5
         cam01_iter   = 10 
         cam02_iter   = 10
-        cam03_iter   = 7 #NOW ice9(7から9)
+        cam03_iter   = 8 #NOW ice9(8,9)
         cam04_iter   = 2 #NOW synapse(2,3)
         cam05_iter   = 0 #TODO 0, 4
         cam10_iter   = 0
