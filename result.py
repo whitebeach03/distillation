@@ -34,7 +34,7 @@ def main():
         cam01_iter   = 10 
         cam02_iter   = 10
         cam03_iter   = 7 #NOW ice9(7から9)
-        cam04_iter   = 0 #NOW adaptpc(0), synapse(1)
+        cam04_iter   = 2 #NOW synapse(2,3)
         cam05_iter   = 0 #TODO 0, 4
         cam10_iter   = 0
     
@@ -108,7 +108,7 @@ def main():
     plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='green')
     plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
     plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='black')
-    # plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='cyan')
+    plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='cyan')
     # plt.plot(x, cam05_acc,   label='Proposed(0.5)',     linewidth=0.5, color='black')
     # plt.plot(x, cam10_acc,   label='Proposed(rate=0.1->0)', linewidth=0.5, color='green')
     plt.xticks(np.arange(0, epochs+10, epochs/10))
