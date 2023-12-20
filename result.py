@@ -34,7 +34,7 @@ def main():
         cam01_iter   = 10 
         cam02_iter   = 10
         cam03_iter   = 8 #NOW ice9(8,9)
-        cam04_iter   = 2 #NOW synapse(2,3)
+        cam04_iter   = 2 #NOW synapse(2,3), adaptpc(4,5)
         cam05_iter   = 0 #TODO 0, 4
         cam10_iter   = 0
     

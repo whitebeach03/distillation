@@ -16,7 +16,7 @@ import pickle
 from src.utils import *
 
 def main():
-    for i in range(2, 4):
+    for i in range(4, 6):
         print(i)
         cam_rate = '04' # default: '01', CAM-curriculum: '10'
         epochs = 150
