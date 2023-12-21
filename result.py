@@ -33,10 +33,10 @@ def main():
         cam00_iter   = 5
         cam01_iter   = 10 
         cam02_iter   = 10
-        cam03_iter   = 8 #NOW ice9(8,9)
-        cam04_iter   = 2 #NOW synapse(2,3), adaptpc(4,5)
-        cam05_iter   = 0 #TODO 0, 4
-        cam10_iter   = 0
+        cam03_iter   = 10
+        cam04_iter   = 10 
+        cam05_iter   = 1 
+        cam10_iter   = 0 #NOW adaptpc(0), synapse(1), ice(2)
     
     # setting path
     teacher_path = './history/resnet/teacher/'
@@ -104,13 +104,13 @@ def main():
     # plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
     # plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
     plt.plot(x, st_acc,      label='Distillation',      linewidth=0.5, color='orange')
-    # plt.plot(x, cam00_acc,   label='Proposed(only)',    linewidth=0.5, color='red')
     plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='green')
     plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
     plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='black')
-    plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='cyan')
-    # plt.plot(x, cam05_acc,   label='Proposed(0.5)',     linewidth=0.5, color='black')
+    plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='brown')
+    plt.plot(x, cam05_acc,   label='Proposed(0.5)',     linewidth=0.5, color='black')
     # plt.plot(x, cam10_acc,   label='Proposed(rate=0.1->0)', linewidth=0.5, color='green')
+    
     plt.xticks(np.arange(0, epochs+10, epochs/10))
     plt.yticks(np.arange(0, 0.95, 0.05))
     plt.xlim(0, epochs+2)
@@ -129,11 +129,11 @@ def main():
     fig.patch.set_facecolor('white')
     plt.xlabel('epoch')
     plt.ylabel('CAM Loss')
-    plt.plot(x, cam00_loss, label='CAM_ratio=0.0', linewidth=0.5, color='red')
-    plt.plot(x, cam01_loss, label='CAM_ratio=0.1', linewidth=0.5, color='cyan')
+    # plt.plot(x, cam00_loss, label='CAM_ratio=0.0', linewidth=0.5, color='red')
+    plt.plot(x, cam01_loss, label='CAM_ratio=0.1', linewidth=0.5, color='green')
     plt.plot(x, cam02_loss, label='CAM_ratio=0.2', linewidth=0.5, color='magenta')
-    plt.plot(x, cam03_loss, label='CAM_ratio=0.3', linewidth=0.5, color='yellow')
-    # plt.plot(x, cam04_loss, label='CAM_ratio=0.4', linewidth=0.5, color='blown')
+    plt.plot(x, cam03_loss, label='CAM_ratio=0.3', linewidth=0.5, color='black')
+    plt.plot(x, cam04_loss, label='CAM_ratio=0.4', linewidth=0.5, color='brown')
     # plt.plot(x, cam05_loss, label='CAM_ratio=0.5', linewidth=0.5, color='black')
     plt.xticks(np.arange(0, epochs+10, epochs/10))
     plt.savefig('./result/CAMLoss_' + str(epochs) + '.png')

@@ -18,9 +18,8 @@ def main():
     
     teacher_student_loss = 0
     teacher_st_loss = 0
-    # teacher_cam01_loss = 0
+    teacher_cam01_loss = 0
     teacher_cam02_loss = 0
-    # teacher_cam000_loss = 0
     
     iteration = 3
     
