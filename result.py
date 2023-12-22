@@ -3,52 +3,67 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def main():           
-    epochs = 150
+    epochs = 200
+    model_type = 'normal'
     
     # setting iteration
-    if epochs == 200:
-        teacher_iter = 5
-        student_iter = 1
-        st_iter      = 3 
-        cam01_iter   = 2
-        cam02_iter   = 3
-        cam03_iter   = 0
-        cam04_iter   = 3
-        cam05_iter   = 0
-        cam10_iter   = 1
-    elif epochs == 100: 
-        teacher_iter = 5 
-        student_iter = 0 
-        st_iter      = 5 
-        cam01_iter   = 5 
-        cam02_iter   = 0 
-        cam03_iter   = 0
-        cam04_iter   = 0
-        cam05_iter   = 0
-        cam10_iter   = 5
-    elif epochs == 150: # 乱数系列 seed_everything
-        teacher_iter = 10 
-        student_iter = 0 
-        st_iter      = 10 
-        cam00_iter   = 5
-        cam01_iter   = 10 
-        cam02_iter   = 10
-        cam03_iter   = 10
-        cam04_iter   = 10 
-        cam05_iter   = 1 
-        cam10_iter   = 0 #NOW adaptpc(0), synapse(1), ice(2)
+    if model_type == 'resnet':
+        if epochs == 200:
+            teacher_iter = 5
+            student_iter = 1
+            st_iter      = 3 
+            cam01_iter   = 2
+            cam02_iter   = 3
+            cam03_iter   = 0
+            cam04_iter   = 3
+            cam05_iter   = 0
+            cam10_iter   = 1
+        elif epochs == 150: # これ
+            teacher_iter = 10
+            student_iter = 0 
+            st_iter      = 10
+            cam00_iter   = 5
+            cam01_iter   = 10
+            cam02_iter   = 10
+            cam03_iter   = 10
+            cam04_iter   = 10
+            cam05_iter   = 1
+            cam10_iter   = 10 #NOW ice9(0)
+    elif model_type == 'normal':
+        if epochs == 150:
+            teacher_iter = 5
+            student_iter = 1 
+            st_iter      = 1
+            cam00_iter   = 0 
+            cam01_iter   = 0 
+            cam02_iter   = 0 
+            cam03_iter   = 0 
+            cam04_iter   = 0 
+            cam05_iter   = 0 
+            cam10_iter   = 0 
+        elif epochs == 200: # これ
+            teacher_iter = 10 
+            student_iter = 1
+            st_iter      = 10
+            cam00_iter   = 0 
+            cam01_iter   = 1 
+            cam02_iter   = 0 
+            cam03_iter   = 0 
+            cam04_iter   = 0 
+            cam05_iter   = 1 #NOW synapse(1), adaptpc(2)
+            cam10_iter   = 0 #TODO ice9(0)
     
     # setting path
-    teacher_path = './history/resnet/teacher/'
-    student_path = './history/resnet/student/'
-    st_path      = './history/resnet/st/'
-    cam00_path   = './history/resnet/cam/00_'
-    cam01_path   = './history/resnet/cam/01_'
-    cam02_path   = './history/resnet/cam/02_'
-    cam03_path   = './history/resnet/cam/03_'
-    cam04_path   = './history/resnet/cam/04_'
-    cam05_path   = './history/resnet/cam/05_'
-    cam10_path   = './history/resnet/cam/10_'
+    teacher_path = './history/' + str(model_type) + '/teacher/'
+    student_path = './history/' + str(model_type) + '/student/'
+    st_path      = './history/' + str(model_type) + '/st/'
+    cam00_path   = './history/' + str(model_type) + '/cam/00_'
+    cam01_path   = './history/' + str(model_type) + '/cam/01_'
+    cam02_path   = './history/' + str(model_type) + '/cam/02_'
+    cam03_path   = './history/' + str(model_type) + '/cam/03_'
+    cam04_path   = './history/' + str(model_type) + '/cam/04_'
+    cam05_path   = './history/' + str(model_type) + '/cam/05_'
+    cam10_path   = './history/' + str(model_type) + '/cam/10_'
 
     
     # print test accuracy
@@ -101,42 +116,48 @@ def main():
     fig.patch.set_facecolor('white')
     plt.xlabel('epoch')
     plt.ylabel('validation accuracy')
-    # plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
-    # plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
+    plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
+    plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
     plt.plot(x, st_acc,      label='Distillation',      linewidth=0.5, color='orange')
     plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='green')
-    plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
-    plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='black')
-    plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='brown')
+    # plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
+    # plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='black')
+    # plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='brown')
     plt.plot(x, cam05_acc,   label='Proposed(0.5)',     linewidth=0.5, color='black')
-    # plt.plot(x, cam10_acc,   label='Proposed(rate=0.1->0)', linewidth=0.5, color='green')
+    # plt.plot(x, cam10_acc,   label='Proposed(rate=0.1->0)', linewidth=0.5, color='red')
     
-    plt.xticks(np.arange(0, epochs+10, epochs/10))
-    plt.yticks(np.arange(0, 0.95, 0.05))
-    plt.xlim(0, epochs+2)
-    plt.ylim(0.60, 0.90)
+    if model_type == 'normal':
+        plt.xticks(np.arange(0, epochs+10, epochs/10))
+        plt.yticks(np.arange(0, 1.0, 0.1))
+        plt.xlim(-2, epochs+2)
+        plt.ylim(0.30, 0.9)
+    else: 
+        plt.xticks(np.arange(0, epochs+10, epochs/10))
+        plt.yticks(np.arange(0, 1.0, 0.1))
+        plt.xlim(0, epochs+2)
+        plt.ylim(0.60, 0.90)
     plt.legend()
-    plt.savefig('./result/resnet_' + str(epochs) + '.png')
+    plt.savefig('./result/' + str(model_type) + '_' + str(epochs) + '.png')
     
     # plot CAM_loss
-    cam00_loss = load_camloss(cam00_path, epochs, cam00_iter)
-    cam01_loss = load_camloss(cam01_path, epochs, cam01_iter)
-    cam02_loss = load_camloss(cam02_path, epochs, cam02_iter)
-    cam03_loss = load_camloss(cam03_path, epochs, cam03_iter)
-    cam04_loss = load_camloss(cam04_path, epochs, cam04_iter)
-    cam05_loss = load_camloss(cam05_path, epochs, cam05_iter)
-    fig = plt.figure()
-    fig.patch.set_facecolor('white')
-    plt.xlabel('epoch')
-    plt.ylabel('CAM Loss')
-    # plt.plot(x, cam00_loss, label='CAM_ratio=0.0', linewidth=0.5, color='red')
-    plt.plot(x, cam01_loss, label='CAM_ratio=0.1', linewidth=0.5, color='green')
-    plt.plot(x, cam02_loss, label='CAM_ratio=0.2', linewidth=0.5, color='magenta')
-    plt.plot(x, cam03_loss, label='CAM_ratio=0.3', linewidth=0.5, color='black')
-    plt.plot(x, cam04_loss, label='CAM_ratio=0.4', linewidth=0.5, color='brown')
-    # plt.plot(x, cam05_loss, label='CAM_ratio=0.5', linewidth=0.5, color='black')
-    plt.xticks(np.arange(0, epochs+10, epochs/10))
-    plt.savefig('./result/CAMLoss_' + str(epochs) + '.png')
+    # cam00_loss = load_camloss(cam00_path, epochs, cam00_iter)
+    # cam01_loss = load_camloss(cam01_path, epochs, cam01_iter)
+    # cam02_loss = load_camloss(cam02_path, epochs, cam02_iter)
+    # cam03_loss = load_camloss(cam03_path, epochs, cam03_iter)
+    # cam04_loss = load_camloss(cam04_path, epochs, cam04_iter)
+    # cam05_loss = load_camloss(cam05_path, epochs, cam05_iter)
+    # fig = plt.figure()
+    # fig.patch.set_facecolor('white')
+    # plt.xlabel('epoch')
+    # plt.ylabel('CAM Loss')
+    # # plt.plot(x, cam00_loss, label='CAM_ratio=0.0', linewidth=0.5, color='red')
+    # plt.plot(x, cam01_loss, label='CAM_ratio=0.1', linewidth=0.5, color='green')
+    # plt.plot(x, cam02_loss, label='CAM_ratio=0.2', linewidth=0.5, color='magenta')
+    # plt.plot(x, cam03_loss, label='CAM_ratio=0.3', linewidth=0.5, color='black')
+    # plt.plot(x, cam04_loss, label='CAM_ratio=0.4', linewidth=0.5, color='brown')
+    # # plt.plot(x, cam05_loss, label='CAM_ratio=0.5', linewidth=0.5, color='black')
+    # plt.xticks(np.arange(0, epochs+10, epochs/10))
+    # plt.savefig('./result/CAMLoss_' + str(epochs) + '.png')
     
 
 def load_hist(path, epochs, iteration):
