@@ -28,7 +28,7 @@ def main():
             cam03_iter   = 10
             cam04_iter   = 10
             cam05_iter   = 1
-            cam10_iter   = 10 #NOW ice9(0)
+            cam10_iter   = 10
     elif model_type == 'normal':
         if epochs == 150:
             teacher_iter = 5
@@ -50,8 +50,8 @@ def main():
             cam02_iter   = 0 
             cam03_iter   = 0 
             cam04_iter   = 0 
-            cam05_iter   = 1 #NOW synapse(1), adaptpc(2)
-            cam10_iter   = 0 #TODO ice9(0)
+            cam05_iter   = 2 #NOW adaptpc(2)
+            cam10_iter   = 0 #TODO ice9(0,1,2)
     
     # setting path
     teacher_path = './history/' + str(model_type) + '/teacher/'
@@ -116,10 +116,10 @@ def main():
     fig.patch.set_facecolor('white')
     plt.xlabel('epoch')
     plt.ylabel('validation accuracy')
-    plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
-    plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
+    # plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
+    # plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
     plt.plot(x, st_acc,      label='Distillation',      linewidth=0.5, color='orange')
-    plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='green')
+    # plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='green')
     # plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
     # plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='black')
     # plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='brown')
@@ -133,7 +133,7 @@ def main():
         plt.ylim(0.30, 0.9)
     else: 
         plt.xticks(np.arange(0, epochs+10, epochs/10))
-        plt.yticks(np.arange(0, 1.0, 0.1))
+        plt.yticks(np.arange(0, 1.0, 0.05))
         plt.xlim(0, epochs+2)
         plt.ylim(0.60, 0.90)
     plt.legend()
