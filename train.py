@@ -17,9 +17,9 @@ import pickle
 def main():
     for i in range(5):
         print(i)
-        model_type = 'normal'
-        model_size = 'teacher'
-        epochs = 200
+        model_type = 'resnet'
+        model_size = 'student'
+        epochs = 150
         batch_size = 128
         # torch.manual_seed(i)
         # np.random.seed(i)

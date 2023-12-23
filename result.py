@@ -1,6 +1,7 @@
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
 
 def main():           
     epochs = 200
@@ -20,7 +21,7 @@ def main():
             cam10_iter   = 1
         elif epochs == 150: # これ
             teacher_iter = 10
-            student_iter = 0 
+            student_iter = 0 #NOW adaptpc(0から4), synapse(5から9)
             st_iter      = 10
             cam00_iter   = 5
             cam01_iter   = 10
@@ -42,17 +43,17 @@ def main():
             cam05_iter   = 0 
             cam10_iter   = 0 
         elif epochs == 200: # これ
-            teacher_iter = 10 
-            student_iter = 1
+            teacher_iter = 10
+            student_iter = 10
             st_iter      = 10
             cam00_iter   = 0 
-            cam01_iter   = 1 
-            cam02_iter   = 0 
+            cam01_iter   = 1 #TODO adaptpc(1から9)
+            cam02_iter   = 0 #TODO synapse(0から9)
             cam03_iter   = 0 
-            cam04_iter   = 0 
-            cam05_iter   = 2 #NOW adaptpc(2)
-            cam10_iter   = 0 #TODO ice9(0,1,2)
-    
+            cam04_iter   = 0 #NOW ice9(0から9)
+            cam05_iter   = 10
+            cam10_iter   = 10
+
     # setting path
     teacher_path = './history/' + str(model_type) + '/teacher/'
     student_path = './history/' + str(model_type) + '/student/'
@@ -65,7 +66,7 @@ def main():
     cam05_path   = './history/' + str(model_type) + '/cam/05_'
     cam10_path   = './history/' + str(model_type) + '/cam/10_'
 
-    
+
     # print test accuracy
     teacher_avg  = load_avg_test(teacher_path, epochs, teacher_iter)
     teacher_best = load_best_test(teacher_path, epochs, teacher_iter)   
@@ -97,7 +98,7 @@ def main():
     print('| Proposed(0.3)    | avg: ' + str(cam03_avg)   + ' | best: ' + str(cam03_best)   + ' |')
     print('| Proposed(0.4)    | avg: ' + str(cam04_avg)   + ' | best: ' + str(cam04_best)   + ' |')
     print('| Proposed(0.5)    | avg: ' + str(cam05_avg)   + ' | best: ' + str(cam05_best)   + ' |')
-    print('| Proposed(0.1->0) | avg: ' + str(cam10_avg)   + ' | best: ' + str(cam10_best)   + ' |')
+    print('| Proposed(0.5->0) | avg: ' + str(cam10_avg)   + ' | best: ' + str(cam10_best)   + ' |')
     
     # loading history and plot
     teacher_acc = load_hist(teacher_path, epochs, teacher_iter)
@@ -116,21 +117,21 @@ def main():
     fig.patch.set_facecolor('white')
     plt.xlabel('epoch')
     plt.ylabel('validation accuracy')
-    # plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
-    # plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
+    plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
+    plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
     plt.plot(x, st_acc,      label='Distillation',      linewidth=0.5, color='orange')
-    # plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='green')
+    # plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='magenta')
     # plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
     # plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='black')
     # plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='brown')
     plt.plot(x, cam05_acc,   label='Proposed(0.5)',     linewidth=0.5, color='black')
-    # plt.plot(x, cam10_acc,   label='Proposed(rate=0.1->0)', linewidth=0.5, color='red')
+    plt.plot(x, cam10_acc,   label='Proposed(rate=0.5->0)', linewidth=0.5, color='green')
     
     if model_type == 'normal':
         plt.xticks(np.arange(0, epochs+10, epochs/10))
         plt.yticks(np.arange(0, 1.0, 0.1))
         plt.xlim(-2, epochs+2)
-        plt.ylim(0.30, 0.9)
+        plt.ylim(0.30, 0.85)
     else: 
         plt.xticks(np.arange(0, epochs+10, epochs/10))
         plt.yticks(np.arange(0, 1.0, 0.05))
