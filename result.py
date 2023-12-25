@@ -47,10 +47,10 @@ def main():
             student_iter = 10
             st_iter      = 10
             cam00_iter   = 0 
-            cam01_iter   = 1 #TODO adaptpc(1から9)
-            cam02_iter   = 0 #TODO synapse(0から9)
+            cam01_iter   = 6 #NOW adaptpc(1から9)
+            cam02_iter   = 4 #NOW synapse(4から9)
             cam03_iter   = 0 
-            cam04_iter   = 0 #NOW ice9(0から9)
+            cam04_iter   = 7 #NOW ice9(7から9)
             cam05_iter   = 10
             cam10_iter   = 10
 
@@ -117,15 +117,15 @@ def main():
     fig.patch.set_facecolor('white')
     plt.xlabel('epoch')
     plt.ylabel('validation accuracy')
-    plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
-    plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
+    # plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
+    # plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
     plt.plot(x, st_acc,      label='Distillation',      linewidth=0.5, color='orange')
-    # plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='magenta')
-    # plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
+    plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='green')
+    plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
     # plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='black')
-    # plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='brown')
+    plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='brown')
     plt.plot(x, cam05_acc,   label='Proposed(0.5)',     linewidth=0.5, color='black')
-    plt.plot(x, cam10_acc,   label='Proposed(rate=0.5->0)', linewidth=0.5, color='green')
+    # plt.plot(x, cam10_acc,   label='Proposed(rate=0.5->0)', linewidth=0.5, color='green')
     
     if model_type == 'normal':
         plt.xticks(np.arange(0, epochs+10, epochs/10))
@@ -138,7 +138,7 @@ def main():
         plt.xlim(0, epochs+2)
         plt.ylim(0.60, 0.90)
     plt.legend()
-    plt.savefig('./result/' + str(model_type) + '_' + str(epochs) + '.png')
+    plt.savefig('./result/' + str(model_type) + '_' + str(epochs) + '_rate.png')
     
     # plot CAM_loss
     # cam00_loss = load_camloss(cam00_path, epochs, cam00_iter)

@@ -16,10 +16,10 @@ import pickle
 from src.utils import *
 
 def main():
-    for i in range(5, 10):
+    for i in range(1, 10):
         print(i)
         model_type = 'normal'
-        cam_rate = '10' # default: '01', CAM-curriculum: '10'
+        cam_rate = '01' # default: '01', CAM-curriculum: '10'
         epochs = 200
         batch_size = 128
         # torch.manual_seed(i)
