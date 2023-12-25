@@ -16,11 +16,11 @@ import pickle
 from src.utils import *
 
 def main():
-    for i in range(1, 10):
+    for i in range(4, 6):
         print(i)
-        model_type = 'normal'
-        cam_rate = '01' # default: '01', CAM-curriculum: '10'
-        epochs = 200
+        model_type = 'resnet'
+        cam_rate = '05' # default: '01', CAM-curriculum: '10'
+        epochs = 150
         batch_size = 128
         # torch.manual_seed(i)
         # np.random.seed(i)
@@ -162,7 +162,7 @@ def create_student_cam(model, images, labels, features, batch_size, device):
         
         for j in range(10):
             weight = model.fc.weight[j]
-            weight = weight.reshape(64, 1, 1) # (512, 1, 1)
+            weight = weight.reshape(512, 1, 1) # (64, 1, 1)
             cam = feature * weight
             cam = torch.sum(cam, axis=0)    
             attmap = torch.cat((attmap, cam), dim=0)
@@ -176,7 +176,7 @@ def create_teacher_cam(model, images, labels, features, batch_size, device):
    
         for j in range(10):
             weight = model.fc.weight[j]
-            weight = weight.reshape(256, 1, 1) # (1024, 1, 1)
+            weight = weight.reshape(1024, 1, 1) # (256, 1, 1)
             cam = feature * weight
             cam = torch.sum(cam, axis=0)
             attmap = torch.cat((attmap, cam), dim=0)
