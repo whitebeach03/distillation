@@ -29,7 +29,7 @@ def main():
             cam03_iter   = 10
             cam04_iter   = 10
             cam05_iter   = 10 
-            cam10_iter   = 10
+            cam10_iter   = 4 #NOW adaptpc(0,1,2) synapse(3,4,5) ice9(6,7,8,9)
     elif model_type == 'normal':
         if epochs == 150:
             teacher_iter = 5
@@ -47,10 +47,10 @@ def main():
             student_iter = 10
             st_iter      = 10
             cam00_iter   = 0 
-            cam01_iter   = 6 #NOW adaptpc(1から9)
-            cam02_iter   = 4 #NOW synapse(4から9)
+            cam01_iter   = 6 
+            cam02_iter   = 4 
             cam03_iter   = 0 
-            cam04_iter   = 7 #NOW ice9(7から9)
+            cam04_iter   = 7 
             cam05_iter   = 10
             cam10_iter   = 10
 
@@ -117,15 +117,15 @@ def main():
     fig.patch.set_facecolor('white')
     plt.xlabel('epoch')
     plt.ylabel('validation accuracy')
-    plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
-    plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
-    plt.plot(x, st_acc,      '--', label='Distillation',      linewidth=1.0, color='orange')
-    plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='green')
-    plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
-    plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='black')
-    plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='brown')
-    plt.plot(x, cam05_acc,   ':', label='Proposed1',     linewidth=1.0, color='magenta')
-    plt.plot(x, cam10_acc,   '-.', label='Proposed2', linewidth=1.0, color='green')
+    # plt.plot(x, teacher_acc, label='Teacher',          linewidth=0.7, color='blue')
+    # plt.plot(x, student_acc, label='Student',          linewidth=0.7, color='red')
+    plt.plot(x, st_acc,      label='Distillation',     linewidth=0.7, color='orange')
+    plt.plot(x, cam01_acc,   label='Proposed(0.1)',    linewidth=0.7, color='green')
+    plt.plot(x, cam02_acc,   label='Proposed(0.2)',    linewidth=0.7, color='magenta')
+    plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.7, color='tomato')
+    plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.7, color='purple')
+    plt.plot(x, cam05_acc,   label='Proposed(0.5)',    linewidth=0.7, color='gold')
+    plt.plot(x, cam10_acc,   label='Proposed(0.5->0)', linewidth=0.7, color='black')
 
     if model_type == 'normal':
         plt.xticks(np.arange(0, epochs+10, epochs/10))

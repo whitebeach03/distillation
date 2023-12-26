@@ -16,10 +16,10 @@ import pickle
 from src.utils import *
 
 def main():
-    for i in range(4, 6):
+    for i in range(3):
         print(i)
         model_type = 'resnet'
-        cam_rate = '05' # default: '01', CAM-curriculum: '10'
+        cam_rate = '10' # default: '01', CAM-curriculum: '10'
         epochs = 150
         batch_size = 128
         # torch.manual_seed(i)
@@ -89,7 +89,7 @@ def main():
                     if epoch <= 20:
                         student_cam = create_student_cam(student, images, labels, student_features, batch_size, device)
                         teacher_cam = create_teacher_cam(teacher, images, labels, teacher_features, batch_size, device)
-                        loss = 0.5*loss_fn(preds, labels) + 0.5*cam_loss(student_cam, teacher_cam)
+                        loss = 0.5*loss_fn(preds, labels) + 0.4*T*T*soft_loss(preds, targets) + 0.1*cam_loss(student_cam, teacher_cam)
                     else:
                         loss = 0.5*loss_fn(preds, labels) + 0.5*T*T*soft_loss(preds, targets)
                 
