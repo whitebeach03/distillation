@@ -28,7 +28,7 @@ def main():
             cam02_iter   = 10
             cam03_iter   = 10
             cam04_iter   = 10
-            cam05_iter   = 4 #NOW adaptpc(4,5) synapse(6,7) ice(8,9)
+            cam05_iter   = 10 
             cam10_iter   = 10
     elif model_type == 'normal':
         if epochs == 150:
@@ -99,7 +99,7 @@ def main():
     print('| Proposed(0.4)    | avg: ' + str(cam04_avg)   + ' | best: ' + str(cam04_best)   + ' |')
     print('| Proposed(0.5)    | avg: ' + str(cam05_avg)   + ' | best: ' + str(cam05_best)   + ' |')
     print('| Proposed(0.5->0) | avg: ' + str(cam10_avg)   + ' | best: ' + str(cam10_best)   + ' |')
-    
+
     # loading history and plot
     teacher_acc = load_hist(teacher_path, epochs, teacher_iter)
     student_acc = load_hist(student_path, epochs, student_iter)
@@ -118,15 +118,15 @@ def main():
     plt.xlabel('epoch')
     plt.ylabel('validation accuracy')
     plt.plot(x, teacher_acc, label='Teacher',               linewidth=0.5, color='blue')
-    plt.plot(x, student_acc, label='BP',               linewidth=0.5, color='red')
-    plt.plot(x, st_acc,      '--', label='KD',      linewidth=1.0, color='orange')
+    plt.plot(x, student_acc, label='Student',               linewidth=0.5, color='red')
+    plt.plot(x, st_acc,      '--', label='Distillation',      linewidth=1.0, color='orange')
     plt.plot(x, cam01_acc,   label='Proposed(0.1)',     linewidth=0.5, color='green')
     plt.plot(x, cam02_acc,   label='Proposed(0.2)',     linewidth=0.5, color='magenta')
     plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.5, color='black')
     plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.5, color='brown')
     plt.plot(x, cam05_acc,   ':', label='Proposed1',     linewidth=1.0, color='magenta')
     plt.plot(x, cam10_acc,   '-.', label='Proposed2', linewidth=1.0, color='green')
-    
+
     if model_type == 'normal':
         plt.xticks(np.arange(0, epochs+10, epochs/10))
         plt.yticks(np.arange(0, 1.0, 0.1))
