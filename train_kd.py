@@ -14,13 +14,11 @@ from src.kd_loss.st import SoftTargetLoss
 import pickle
 
 def main():
-    for i in range(5):
+    for i in range(2, 3):
         print(i)
         epochs = 200
         batch_size = 128
-        # torch.manual_seed(i)
-        # np.random.seed(i)
-        model_type = 'normal'
+        model_type = 'special'
         seed_everything(100+i)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
@@ -42,6 +40,9 @@ def main():
             student = resnet_student().to(device)
         elif model_type == 'normal':
             teacher = Teacher().to(device)
+            student = Student().to(device)
+        elif model_type == 'special':
+            teacher = resnet_teacher().to(device)
             student = Student().to(device)
         
         teacher.load_state_dict(torch.load('./logs/' + str(model_type) + '/teacher/' + str(epochs) + '_' + str(i) + '.pth')) 
