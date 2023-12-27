@@ -38,7 +38,7 @@ def main():
             cam03_iter   = 10
             cam04_iter   = 10
             cam05_iter   = 10 
-            cam10_iter   = 4 #NOW synapse(4,5,6) ice9(7,8,9) 0.1->0
+            cam10_iter   = 4 #NOW synapse(4,5,6) ice9(7,8,9) 0.1->0 ５だけできてない
     elif model_type == 'normal':
         if epochs == 150:
             teacher_iter = 5
