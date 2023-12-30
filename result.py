@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import torch
 
 def main():           
-    taku = 'resnet'
+    taku = 'normal'
     
     if taku == 'resnet':
         epochs = 150
@@ -137,21 +137,21 @@ def main():
     fig.patch.set_facecolor('white')
     plt.xlabel('epoch')
     plt.ylabel('validation accuracy')
-    # plt.plot(x, teacher_acc, label='Teacher',          linewidth=0.7, color='blue')
-    plt.plot(x, student_acc, label='BP',          linewidth=0.7, color='red')
-    plt.plot(x, st_acc,      label='KD',     linewidth=0.7, color='orange')
-    plt.plot(x, cam01_acc,   label='Proposed(0.1)',    linewidth=0.7, color='brown')
+    # plt.plot(x, teacher_acc, label='Teacher',          linewidth=0.5, color='blue')
+    plt.plot(x, student_acc, label='BP',          linewidth=0.6, color='red')
+    plt.plot(x, st_acc,      label='Distillation',     linewidth=0.6, color='orange')
+    # plt.plot(x, cam01_acc,   label='Proposed(0.1)',    linewidth=0.7, color='brown')
     # plt.plot(x, cam02_acc,   label='Proposed(0.2)',    linewidth=0.7, color='magenta')
     # plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.7, color='tomato')
     # plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.7, color='gold')
-    # plt.plot(x, cam05_acc,   label='Proposed(0.5)',    linewidth=0.7, color='purple')
-    plt.plot(x, cam10_acc,   label='Proposed(0.1->0)', linewidth=0.7, color='green')
+    plt.plot(x, cam05_acc,   label='Proposed(0.5)',    linewidth=0.6, color='purple')
+    plt.plot(x, cam10_acc,   label='Proposed(0.5->0)', linewidth=0.6, color='green')
 
     if model_type == 'normal':
         plt.xticks(np.arange(0, epochs+10, epochs/10))
         plt.yticks(np.arange(0, 1.0, 0.1))
         plt.xlim(0, epochs+2)
-        plt.ylim(0.30, 0.85)
+        plt.ylim(0.50, 0.85)
     else: 
         plt.xticks(np.arange(0, epochs+10, epochs/10))
         plt.yticks(np.arange(0, 1.0, 0.05))
