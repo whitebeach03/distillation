@@ -22,7 +22,7 @@ def main():
     teacher_cam05_loss = 0
     teacher_cam10_loss = 0
     
-    iteration = 10
+    iteration = 1
     
     for i in range(iteration):
         print(i)

@@ -16,27 +16,31 @@ from src.utils import *
 name = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
 
 def main():
+    model_type = 'normal'
+    seed = 7
     batch_size = 128
-    seed_everything(109)
+    seed_everything(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     BICUBIC = InterpolationMode.BICUBIC
 
-    # setting ResNet 
-    # student = resnet_student().to(device)
-    # teacher = resnet_teacher().to(device)
-    # proposed = resnet_student().to(device)
-    # st = resnet_student().to(device)
-    student = Student().to(device)
-    teacher = Teacher().to(device)
-    st      = Student().to(device)
-    cam05   = Student().to(device)
-    cam10   = Student().to(device)
+    # setting models
+    if model_type == 'resnet':
+        student = resnet_student().to(device)
+        teacher = resnet_teacher().to(device)
+        cam     = resnet_student().to(device)
+        st      = resnet_student().to(device)
+    elif model_type == 'normal':
+        student = Student().to(device)
+        teacher = Teacher().to(device)
+        st      = Student().to(device)
+        cam05   = Student().to(device)
+        cam10   = Student().to(device)
 
-    student.load_state_dict(torch.load('./logs/normal/student/200_1.pth'))
-    teacher.load_state_dict(torch.load('./logs/normal/teacher/200_1.pth'))
-    st.load_state_dict(torch.load('logs/normal/st/200_1.pth'))
-    cam05.load_state_dict(torch.load('logs/normal/cam/05_200_1.pth'))
-    cam10.load_state_dict(torch.load('logs/normal/cam/10_200_1.pth'))
+    student.load_state_dict(torch.load('./logs/' + str(model_type) + '/student/200_0.pth'))
+    teacher.load_state_dict(torch.load('./logs/' + str(model_type) + '/teacher/200_0.pth'))
+    st.load_state_dict(torch.load('logs/' + str(model_type) + '/st/200_0.pth'))
+    cam05.load_state_dict(torch.load('logs/' + str(model_type) + '/cam/05_200_0.pth'))
+    cam10.load_state_dict(torch.load('logs/' + str(model_type) + '/cam/10_200_0.pth'))
  
     student.eval()
     teacher.eval()
@@ -75,23 +79,23 @@ def main():
             cam05_cam   = create_student_cam(image, label, cam05_feature, cam05)
             cam10_cam   = create_student_cam(image, label, cam10_feature, cam10)
             
-            fig, ax = plt.subplots(1, 5)
-            ax[0].set_title('Image')
-            ax[1].set_title('Teacher')
-            ax[2].set_title('BP')
-            ax[3].set_title('KD')
-            ax[4].set_title('Proposed(0.5)')
-            # ax[5].set_title('Proposed(0.5->0)')
+            fig, ax = plt.subplots(1, 6)
+            ax[0].set_title('Image', size=10)
+            ax[1].set_title('Teacher', size=10)
+            ax[2].set_title('BP', size=10)
+            ax[3].set_title('KD', size=10)
+            ax[4].set_title('Prop(0.5)', size=10)
+            ax[5].set_title('Prop(0.5->0)', size=10)
             
             ax[0].imshow(image.permute(1, 2, 0).cpu().numpy())
             ax[1].imshow(teacher_cam)
             ax[2].imshow(student_cam)
             ax[3].imshow(st_cam)
             ax[4].imshow(cam05_cam)
-            # ax[5].imshow(cam10_cam)
+            ax[5].imshow(cam10_cam)
     
             plt.suptitle(name[label], fontsize=17)
-            plt.savefig('./cam/0' + str(i) + '.png')
+            plt.savefig('./cam/' + str(model_type) + '/' + str(seed) + '_' + str(i) + '.png')
         
         break
 
