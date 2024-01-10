@@ -138,14 +138,14 @@ def main():
     plt.xlabel('epoch')
     plt.ylabel('validation accuracy')
     # plt.plot(x, teacher_acc, label='Teacher',          linewidth=0.5, color='blue')
-    plt.plot(x, student_acc, label='BP',          linewidth=0.6, color='red')
-    plt.plot(x, st_acc,      label='Distillation',     linewidth=0.6, color='orange')
+    plt.plot(x, student_acc, label='BP',          linewidth=0.5, color='red')
+    plt.plot(x, st_acc,      label='Distillation',     linewidth=0.5, color='orange')
     # plt.plot(x, cam01_acc,   label='Proposed(0.1)',    linewidth=0.7, color='brown')
     # plt.plot(x, cam02_acc,   label='Proposed(0.2)',    linewidth=0.7, color='magenta')
     # plt.plot(x, cam03_acc,   label='Proposed(0.3)',    linewidth=0.7, color='tomato')
     # plt.plot(x, cam04_acc,   label='Proposed(0.4)',    linewidth=0.7, color='gold')
-    plt.plot(x, cam05_acc,   label='Proposed(0.5)',    linewidth=0.6, color='purple')
-    plt.plot(x, cam10_acc,   label='Proposed(0.5->0)', linewidth=0.6, color='green')
+    plt.plot(x, cam05_acc,   label='Proposed1',    linewidth=0.5, color='green')
+    plt.plot(x, cam10_acc,   label='Proposed2', linewidth=0.5, color='purple')
 
     if model_type == 'normal':
         plt.xticks(np.arange(0, epochs+10, epochs/10))
@@ -157,7 +157,7 @@ def main():
         plt.yticks(np.arange(0, 1.0, 0.05))
         plt.xlim(0, epochs+2)
         plt.ylim(0.60, 0.90)
-    plt.legend()
+    plt.legend(loc='lower right')
     plt.savefig('./result/' + str(model_type) + '_' + str(epochs) + '_rate.png')
     
     # plot CAM_loss

@@ -16,8 +16,8 @@ from src.utils import *
 name = {0: 'airplane', 1: 'automobile', 2: 'bird', 3: 'cat', 4: 'deer', 5: 'dog', 6: 'frog', 7: 'horse', 8: 'ship', 9: 'truck'}
 
 def main():
-    model_type = 'resnet'
-    seed = 6
+    model_type = 'normal'
+    seed = 5
     batch_size = 128
     seed_everything(seed)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -36,17 +36,17 @@ def main():
         cam05   = Student().to(device)
         cam10   = Student().to(device)
 
-    student.load_state_dict(torch.load('./logs/' + str(model_type) + '/student/150_0.pth'))
-    teacher.load_state_dict(torch.load('./logs/' + str(model_type) + '/teacher/150_0.pth'))
+    student.load_state_dict(torch.load('./logs/' + str(model_type) + '/student/200_0.pth'))
+    teacher.load_state_dict(torch.load('./logs/' + str(model_type) + '/teacher/200_0.pth'))
     st.load_state_dict(torch.load('logs/' + str(model_type) + '/st/200_0.pth'))
-    # cam05.load_state_dict(torch.load('logs/' + str(model_type) + '/cam/05_200_0.pth'))
-    # cam10.load_state_dict(torch.load('logs/' + str(model_type) + '/cam/10_200_0.pth'))
+    cam05.load_state_dict(torch.load('logs/' + str(model_type) + '/cam/05_200_0.pth'))
+    cam10.load_state_dict(torch.load('logs/' + str(model_type) + '/cam/10_200_0.pth'))
  
     student.eval()
     teacher.eval()
     st.eval()
-    # cam05.eval()
-    # cam10.eval()
+    cam05.eval()
+    cam10.eval()
 
     # setting dataset
     data_dir        = './data/cifar10'
@@ -60,8 +60,8 @@ def main():
         _, student_cams = student(images)
         _, teacher_cams = teacher(images)
         _, st_cams      = st(images)
-        # _, cam05_cams   = cam05(images)
-        # _, cam10_cams   = cam10(images)
+        _, cam05_cams   = cam05(images)
+        _, cam10_cams   = cam10(images)
 
         # show 10-CAM
         for i in range(10):
@@ -70,38 +70,38 @@ def main():
             student_feature = student_cams[i].to(device)
             teacher_feature = teacher_cams[i].to(device)
             st_feature      = st_cams[i].to(device)
-            # cam05_feature   = cam05_cams[i].to(device)
-            # cam10_feature   = cam10_cams[i].to(device)
+            cam05_feature   = cam05_cams[i].to(device)
+            cam10_feature   = cam10_cams[i].to(device)
           
             student_cam = create_student_cam(image, label, student_feature, student)
             teacher_cam = create_teacher_cam(image, label, teacher_feature, teacher)
             st_cam      = create_student_cam(image, label, st_feature, st)
-            # cam05_cam   = create_student_cam(image, label, cam05_feature, cam05)
-            # cam10_cam   = create_student_cam(image, label, cam10_feature, cam10)
+            cam05_cam   = create_student_cam(image, label, cam05_feature, cam05)
+            cam10_cam   = create_student_cam(image, label, cam10_feature, cam10)
             
-            fig, ax = plt.subplots(1, 3)
+            fig, ax = plt.subplots(1, 7)
             ax[1].tick_params(labelbottom=False, labelleft=False, bottom=False, left=False)
             ax[2].tick_params(labelbottom=False, labelleft=False, bottom=False, left=False)
-            # ax[3].tick_params(labelbottom=False, labelleft=False, bottom=False, left=False)
-            # ax[4].tick_params(labelbottom=False, labelleft=False, bottom=False, left=False)
-            # ax[5].tick_params(labelbottom=False, labelleft=False, bottom=False, left=False)
-            # ax[6].tick_params(labelbottom=False, labelleft=False, bottom=False, left=False)
+            ax[3].tick_params(labelbottom=False, labelleft=False, bottom=False, left=False)
+            ax[4].tick_params(labelbottom=False, labelleft=False, bottom=False, left=False)
+            ax[5].tick_params(labelbottom=False, labelleft=False, bottom=False, left=False)
+            ax[6].tick_params(labelbottom=False, labelleft=False, bottom=False, left=False)
             
             ax[0].axis('off')
-            ax[1].set_title('Input Image', size=9)
-            ax[2].set_title('ResNet50', size=9)
-            # ax[3].set_title('BP', size=9)
-            # ax[4].set_title('KD', size=9)
-            # ax[5].set_title('Prop(0.5)', size=9)
-            # ax[6].set_title('Prop(0.5->0)', size=9)
+            ax[1].set_title('Image', size=9)
+            ax[2].set_title('Teacher', size=9)
+            ax[3].set_title('BP', size=9)
+            ax[4].set_title('KD', size=9)
+            ax[5].set_title('Proposed1', size=9)
+            ax[6].set_title('Proposed2', size=9)
             
             ax[0].text(0.15, 0.48, name[label])
             ax[1].imshow(image.permute(1, 2, 0).cpu().numpy())
             ax[2].imshow(teacher_cam)
-            # ax[3].imshow(student_cam)
-            # ax[4].imshow(st_cam)
-            # ax[5].imshow(cam05_cam)
-            # ax[6].imshow(cam10_cam)
+            ax[3].imshow(student_cam)
+            ax[4].imshow(st_cam)
+            ax[5].imshow(cam05_cam)
+            ax[6].imshow(cam10_cam)
     
             plt.savefig('./cam/' + str(model_type) + '/' + str(seed) + '_' + str(i) + '.png')
         
@@ -109,7 +109,7 @@ def main():
 
 def create_student_cam(image, label, feature, student):
     weight = student.fc.weight[label]
-    weight = weight.reshape(512, 1, 1)
+    weight = weight.reshape(64, 1, 1)
     cam = feature * weight  
     cam = cam.detach().cpu().numpy()
     cam = np.sum(cam, axis=0)
@@ -121,7 +121,7 @@ def create_student_cam(image, label, feature, student):
 
 def create_teacher_cam(image, label, feature, teacher):
     weight = teacher.fc.weight[label]
-    weight = weight.reshape(1024, 1, 1)
+    weight = weight.reshape(256, 1, 1)
     cam = feature * weight  
     cam = cam.detach().cpu().numpy()
     cam = np.sum(cam, axis=0)
