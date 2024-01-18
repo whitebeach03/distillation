@@ -16,7 +16,7 @@ import pickle
 from src.utils import *
 
 def main():
-    for i in range(3, 4):
+    for i in range(1):
         print(i)
         model_type = 'normal'
         cam_rate = '10' # default: '01', CAM-curriculum: '10'
@@ -181,6 +181,7 @@ def create_teacher_cam(model, images, labels, features, batch_size, device):
             cam = feature * weight
             cam = torch.sum(cam, axis=0)
             attmap = torch.cat((attmap, cam), dim=0)
+    print(attmap.shape)
     return attmap
 
 

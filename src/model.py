@@ -237,10 +237,10 @@ def resnet_teacher(output_dim=10):
     return ResNetAssistant(BottleNeck, [4,6,9,4], num_classes=output_dim)
     
 # モデルのパラメータ数のカウント
-# teacher = resnet_teacher()
-# student = resnet_student()
-teacher = Teacher()
-student = Student()
+teacher = resnet_teacher()
+student = resnet_student()
+# teacher = Teacher()
+# student = Student()
 
 teacher.eval()
 student.eval()
