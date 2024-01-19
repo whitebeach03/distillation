@@ -250,4 +250,5 @@ def count_parameters(model):
 
 print(f"Teacher parameters: {count_parameters(teacher)}")
 print(f"Student parameters: {count_parameters(student)}")
+print(torch.cuda.is_available())
 
