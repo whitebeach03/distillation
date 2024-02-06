@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import torch
 
 def main():           
-    taku = 'resnet'
+    taku = 'normal'
     
     if taku == 'resnet':
         epochs = 150
@@ -141,12 +141,12 @@ def main():
     # plt.plot(x, teacher_acc, label='Teacher',          linewidth=0.6, color='blue')
     plt.plot(x, student_acc, label='BP',           linewidth=0.6, color='red')
     plt.plot(x, st_acc,      label='Distillation', linewidth=0.6, color='orange')
-    plt.plot(x, cam01_acc,   label='Proposed1',    linewidth=0.6, color=cm(1.0))
-    plt.plot(x, cam02_acc,   label='Proposed2',    linewidth=0.6, color=cm(0.8))
-    plt.plot(x, cam03_acc,   label='Proposed3',    linewidth=0.6, color=cm(0.6))
-    plt.plot(x, cam04_acc,   label='Proposed4',    linewidth=0.6, color=cm(0.4))
-    plt.plot(x, cam05_acc,   label='Proposed5',    linewidth=0.6, color=cm(0.2))
-    # plt.plot(x, cam10_acc,   label='Proposed2', linewidth=0.5, color='purple')
+    # plt.plot(x, cam01_acc,   label='Proposed1',    linewidth=0.6, color='green')
+    # plt.plot(x, cam02_acc,   label='Proposed2',    linewidth=0.6, color='purple')
+    # plt.plot(x, cam03_acc,   label='Proposed3',    linewidth=0.6, color=cm(0.6))
+    # plt.plot(x, cam04_acc,   label='Proposed4',    linewidth=0.6, color=cm(0.4))
+    plt.plot(x, cam05_acc,   label='Proposed5',    linewidth=0.6, color='green')
+    plt.plot(x, cam10_acc,   label='Proposed2Proposed2', linewidth=0.5, color='purple')
 
     if model_type == 'normal':
         plt.xticks(np.arange(0, epochs+10, epochs/10))
